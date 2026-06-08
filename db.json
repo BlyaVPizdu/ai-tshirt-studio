@@ -1,3 +1,53 @@
 {
-  "designs": []
+  "designs": [
+    {
+      "prompt": "cat",
+      "image": "https://image.pollinations.ai/prompt/cat",
+      "shirtColor": "white",
+      "position": {
+        "x": 130,
+        "y": 130
+      },
+      "size": 100,
+      "rotation": -30,
+      "id": "h_iNreJRhZU"
+    },
+    {
+      "prompt": "horse",
+      "image": "https://image.pollinations.ai/prompt/horse",
+      "shirtColor": "white",
+      "position": {
+        "x": 130,
+        "y": 130
+      },
+      "size": 140,
+      "rotation": 30,
+      "id": "lH2mO-yrCeI"
+    },
+    {
+      "prompt": "cat",
+      "image": "https://image.pollinations.ai/prompt/cat",
+      "shirtColor": "white",
+      "position": {
+        "x": 130,
+        "y": 130
+      },
+      "size": 140,
+      "rotation": -30,
+      "id": "reXVOwOr560"
+    },
+    {
+      "prompt": "",
+      "image": "https://image.pollinations.ai/prompt/",
+      "shirtColor": "white",
+      "position": {
+        "x": 133.19999998807907,
+        "y": 241.80000019073486
+      },
+      "size": 130,
+      "rotation": -45,
+      "id": "QlbOacYESSo"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

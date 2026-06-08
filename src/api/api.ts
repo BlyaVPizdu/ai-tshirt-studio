@@ -25,7 +25,21 @@ export async function createDesign(newDesign: Omit<Design, "id">): Promise<Desig
 
   return res.json();
 };
+export const updateDesign = async (id: number, updatedDesign: Design): Promise<Design> => {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedDesign),
+  });
 
+  if (!res.ok) {
+    throw new Error("Ошибка обновления");
+  }
+
+  return res.json();
+};
 
 export const deleteDesignApi = async (id: number): Promise<void> => {
   const res = await fetch(`${API_URL}/${id}`, {
@@ -36,12 +50,4 @@ export const deleteDesignApi = async (id: number): Promise<void> => {
     throw new Error("Ошибка удаления");
   }
 };
-export const sendPrompt = async (prompt: string)=>{
-        const text = prompt.toLowerCase().split(" ")
-      const res = await fetch("http://localhost:3002/generate", {
-           method: "POST",
-          headers: { "Content-Type": "application/json"},
-           body: JSON.stringify(text)
-  })
-  return res.json()
-}
+

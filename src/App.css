@@ -7,6 +7,7 @@
 }
 
 .shirt-image {
+
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -17,5 +18,29 @@
   position: absolute;
   width: 140px;
   cursor: grab;
+  user-select: none;
+}
+.saved-designs {
+  margin-top: 100px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.saved-design-preview {
+  position: relative;
+  width: 200px;
+  height: 250px;
+  overflow: hidden;
+}
+
+.preview-shirt {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.preview-image {
+  position: absolute;
   user-select: none;
 }

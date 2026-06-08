@@ -1,4 +1,5 @@
 import type { ShirtColor } from "../types/tshirt";
+import { shirtImages } from "../constants/shirtImages";
 type Props = {
     isDragging: boolean
     size: number
@@ -16,13 +17,11 @@ type Props = {
     setRotation:  React.Dispatch<React.SetStateAction<number>>
     rotation: number
     saveDesign: () => Promise<void>
+    editingId:number | null
 }
 
-function ShirtPreview({saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
-    const shirtImages = {
-          white: "/shirts/white.png",
-          black: "/shirts/black.jpg",
-          washed: "/shirts/washed.png"}
+function ShirtPreview({editingId, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
+    
     const changeSize = (newSize: number)=>{
           const minSize = 50
         const maxSize = 300
@@ -70,7 +69,7 @@ function ShirtPreview({saveDesign, rotation, setRotation, setSize, position, isD
       }}>Reset design</button>
       <button onClick={()=> setRotation(rotation - 15)}>Rotate left</button>
       <button onClick={()=> setRotation(rotation + 15)}>Rotate right</button>
-      <button onClick={saveDesign}>Save design</button>
+      <button onClick={saveDesign}>{editingId !== null ? "Update Design" :"Save Design"}</button>
         </div>
     }</div>
         </section>
