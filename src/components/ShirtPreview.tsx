@@ -17,10 +17,11 @@ type Props = {
     setRotation:  React.Dispatch<React.SetStateAction<number>>
     rotation: number
     saveDesign: () => Promise<void>
-    editingId:number | null
+    onCancelEdit: ()=> void
+    editingDesignId: number | null
 }
 
-function ShirtPreview({editingId, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
+function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
     
     const changeSize = (newSize: number)=>{
           const minSize = 50
@@ -69,7 +70,8 @@ function ShirtPreview({editingId, saveDesign, rotation, setRotation, setSize, po
       }}>Reset design</button>
       <button onClick={()=> setRotation(rotation - 15)}>Rotate left</button>
       <button onClick={()=> setRotation(rotation + 15)}>Rotate right</button>
-      <button onClick={saveDesign}>{editingId !== null ? "Update Design" :"Save Design"}</button>
+      <button onClick={saveDesign}>{editingDesignId !== null ? "Update Design" :"Save Design"}</button>
+      {editingDesignId !== null && (<button onClick={onCancelEdit}>Cancel edit</button>)}
         </div>
     }</div>
         </section>

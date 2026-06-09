@@ -18,6 +18,8 @@ import SavedDesigns from './components/SavedDesigns'
     const [isDragging, setIsDragging] = useState(false)
     const [savedDesigns, setSavedDesigns] = useState<Design[]>([])
     const [editingDesignId, setEditingDesignId] = useState<number | null>(null)
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -26,9 +28,22 @@ import SavedDesigns from './components/SavedDesigns'
       loadDesigns()
     }, [])
     const handleGenerate = async () => {
-      
+      try{
+        setError(null)
+          setIsGenerating(true)
+          if (!prompt.trim()) {
+      setError("Please enter a prompt")
+             return
+          }
          const image = await generateDesignImage(prompt)
           setGeneratedImage(image)
+      }
+      catch{
+          setError("Could not generate image")
+      }
+      finally{
+           setIsGenerating(false)
+      }  
     }
     
   const saveDesign = async () => {
@@ -79,11 +94,20 @@ import SavedDesigns from './components/SavedDesigns'
         setRotation(editingDesign.rotation)
         setEditingDesignId(id)
     }
+     const cancelEdit = () =>{
+        setEditingDesignId(null)
+        setPrompt("")
+        setGeneratedImage(null)
+        setPosition({ x: 130, y: 130 })
+        setSize(140)
+        setRotation(0)
+    }
 
     
 
     return (
       <main>
+        
         <ShirtSelector
         shirtColor = {shirtColor}
         setShirtColor = {setShirtColor}/>
@@ -91,6 +115,8 @@ import SavedDesigns from './components/SavedDesigns'
         prompt = {prompt}
         onPromptChange = {setPrompt}
         onGenerate = {handleGenerate}
+        isGenerating = {isGenerating}
+        error = {error}
         />
        
       <ShirtPreview
@@ -105,12 +131,14 @@ import SavedDesigns from './components/SavedDesigns'
       rotation = {rotation}
       saveDesign = {saveDesign}
       shirtColor={shirtColor}
-      editingId={editingDesignId}
+      onCancelEdit = {cancelEdit}
+      editingDesignId= {editingDesignId}
       />
       <SavedDesigns
       savedDesigns = {savedDesigns}
       deleteDesign= {deleteDesign}
-      editDesign = {editDesign}/>   
+      editDesign = {editDesign}
+      />   
         </main>
         
     )
