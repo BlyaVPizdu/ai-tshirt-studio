@@ -1,5 +1,7 @@
 import type { ShirtColor } from "../types/tshirt";
 import { shirtImages } from "../constants/shirtImages";
+import { toPng } from "html-to-image"
+import { useRef } from "react";
 type Props = {
     isDragging: boolean
     size: number
@@ -22,7 +24,7 @@ type Props = {
 }
 
 function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
-    
+    const previewRef = useRef<HTMLInputElement>(null)
     const changeSize = (newSize: number)=>{
           const minSize = 50
         const maxSize = 300
@@ -39,9 +41,17 @@ function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setR
     
         setSize(newSize)
       }
+      const exportPreview = async ()=>{
+          if (!previewRef.current) return
+        const dataUrl = await toPng(previewRef.current)
+        const link = document.createElement("a")
+        link.href = dataUrl
+        link.download = "t-shirt-design.png"
+        link.click()
+      }
     return(
         <section>
-          <div className="shirt-preview"
+          <div ref={previewRef} className="shirt-preview"
             onMouseMove={(event) => {
                 if (!isDragging) return
             const rect = event.currentTarget.getBoundingClientRect()
@@ -71,6 +81,7 @@ function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setR
       <button onClick={()=> setRotation(rotation - 15)}>Rotate left</button>
       <button onClick={()=> setRotation(rotation + 15)}>Rotate right</button>
       <button onClick={saveDesign}>{editingDesignId !== null ? "Update Design" :"Save Design"}</button>
+      <button onClick={exportPreview}>Export PNG</button>
       {editingDesignId !== null && (<button onClick={onCancelEdit}>Cancel edit</button>)}
         </div>
     }</div>

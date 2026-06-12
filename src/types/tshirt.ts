@@ -10,3 +10,4 @@ export type Design = {
   size: number
   rotation: number
 }
+export type AiProvider = "pollinations" | "openai" | "comfy"

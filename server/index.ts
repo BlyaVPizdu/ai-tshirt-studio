@@ -13,9 +13,23 @@ const openai = new OpenAI({
 */
 app.post("/generate", async (req, res) => {
   const prompt = req.body.prompt
-  const sendImage = await generateImage(prompt)
-  console.log(sendImage)
-  res.json(sendImage)
+  if(req.body.selectedProvider === "pollinations"){
+    const sendImage = await generateImage(prompt)
+    return res.json(sendImage)
+  }
+  if(req.body.selectedProvider === "openai"){
+  return  res.status(501).json({
+  error: "Provider not implemented"
+})}
+if(req.body.selectedProvider === "comfy"){
+    return res.status(501).json({
+  error: "Provider not implemented"
+})}
+  else {
+    return res.status(400).json({
+     error: "Unknown provider"
+})
+  }
 })
 
 app.get("/health" , (req, res)=>{

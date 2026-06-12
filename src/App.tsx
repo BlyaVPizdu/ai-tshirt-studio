@@ -1,5 +1,5 @@
   import { useEffect, useState } from 'react'
-  import type { ShirtColor, Design } from './types/tshirt'
+  import type { ShirtColor, Design, AiProvider } from './types/tshirt'
   import { createDesign, deleteDesignApi, getDesigns, updateDesign } from './api/api'
   import { generateDesignImage } from './utils/generateDesignImage'
   import './App.css'
@@ -20,6 +20,7 @@ import SavedDesigns from './components/SavedDesigns'
     const [editingDesignId, setEditingDesignId] = useState<number | null>(null)
     const [isGenerating, setIsGenerating] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [selectedProvider, setSelectedProvider] = useState<AiProvider>("pollinations")
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -32,14 +33,14 @@ import SavedDesigns from './components/SavedDesigns'
         setError(null)
           setIsGenerating(true)
           if (!prompt.trim()) {
-      setError("Please enter a prompt")
+           setError("Please enter a prompt")
              return
           }
-         const image = await generateDesignImage(prompt)
+         const image = await generateDesignImage(prompt, selectedProvider)
           setGeneratedImage(image)
       }
-      catch{
-          setError("Could not generate image")
+      catch(error){
+          setError(error instanceof Error ? error.message : "Could not generate image")
       }
       finally{
            setIsGenerating(false)
@@ -102,8 +103,10 @@ import SavedDesigns from './components/SavedDesigns'
         setSize(140)
         setRotation(0)
     }
-
-    
+    const handleUploadImage = (file: File) => {
+      const imageUrl = URL.createObjectURL(file)
+       setGeneratedImage(imageUrl)}
+        
 
     return (
       <main>
@@ -112,11 +115,14 @@ import SavedDesigns from './components/SavedDesigns'
         shirtColor = {shirtColor}
         setShirtColor = {setShirtColor}/>
         <PromptForm
+        onUploadImage = {handleUploadImage}
         prompt = {prompt}
         onPromptChange = {setPrompt}
         onGenerate = {handleGenerate}
         isGenerating = {isGenerating}
         error = {error}
+        onProviderChange = {setSelectedProvider}
+        selectedProvider = {selectedProvider}
         />
        
       <ShirtPreview
