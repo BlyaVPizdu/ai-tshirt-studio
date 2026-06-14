@@ -1,6 +1,6 @@
   import { useEffect, useState } from 'react'
-  import type { ShirtColor, Design, AiProvider } from './types/tshirt'
-  import { createDesign, deleteDesignApi, getDesigns, updateDesign } from './api/api'
+  import type { ShirtColor, Design, AiProvider, CartItem } from './types/tshirt'
+  import { uploadImage, createDesign, deleteDesignApi, getDesigns, updateDesign, createOrder } from './api/api'
   import { generateDesignImage } from './utils/generateDesignImage'
   import './App.css'
 import ShirtSelector from './components/ShirtSelector'
@@ -21,6 +21,7 @@ import SavedDesigns from './components/SavedDesigns'
     const [isGenerating, setIsGenerating] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [selectedProvider, setSelectedProvider] = useState<AiProvider>("pollinations")
+    const [cartItems, setCartItems] = useState<CartItem[]>([])
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -103,14 +104,56 @@ import SavedDesigns from './components/SavedDesigns'
         setSize(140)
         setRotation(0)
     }
-    const handleUploadImage = (file: File) => {
-      const imageUrl = URL.createObjectURL(file)
-       setGeneratedImage(imageUrl)}
+    const handleUploadImage = async (file: File) => {
+  try {
+    setError(null)
+
+    const uploaded = await uploadImage(file)
+
+    setGeneratedImage(`http://localhost:3002${uploaded.imageUrl}`)
+  } catch {
+    setError("Could not upload image")
+  }
+}   
+    const addCart =  (id: number)=>{
+          const cartItem: CartItem= {
+                designId: id,
+                quantity: 1,
+                size: "M"
+                                    }
+          setCartItems(prev=> [...prev, cartItem])
+          const existingItem = cartItems.find(item=> item.designId === id)
+          if(!existingItem){
+              setCartItems(prev => prev.map(c=> c.quantity +1 ))
+          }
+          
+        }
+        const removeCart = (id: number)=>{
+          setCartItems(prev => prev.filter(c=> c.designId !== id))
+        }
+
+        
         
 
     return (
       <main>
-        
+        <h2>Cart</h2>
+
+    {cartItems.map(item => {
+  const design = savedDesigns.find(
+    d => d.id === item.designId
+  )
+  if(setCartItems(prev => prev.find(item=> item.designId === id)))
+   
+        return (
+    <div key={item.designId}>
+      <p>{design?.prompt}</p>
+      <p>Size: {item.size}</p>
+      <p>Qty: {item.quantity+1}</p>
+      <button onClick={()=> removeCart(item.designId)}>Remove from Cart</button>
+    </div>
+  )
+      })}
         <ShirtSelector
         shirtColor = {shirtColor}
         setShirtColor = {setShirtColor}/>
@@ -144,6 +187,7 @@ import SavedDesigns from './components/SavedDesigns'
       savedDesigns = {savedDesigns}
       deleteDesign= {deleteDesign}
       editDesign = {editDesign}
+      onAddCart = {addCart}
       />   
         </main>
         

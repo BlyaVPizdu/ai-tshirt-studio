@@ -1,14 +1,18 @@
-import type { Design } from "../types/tshirt"
+import type {  CartItem, Design } from "../types/tshirt"
 import { shirtImages } from "../constants/shirtImages"
+
 type Props = {
 savedDesigns: Design[]
 deleteDesign: (id: number) => Promise<void>
 editDesign: (id: number) => void
+onAddCart: (id: number) => void
 
 }
 
-function SavedDesigns({editDesign,savedDesigns, deleteDesign}: Props){
+function SavedDesigns({ onAddCart, editDesign,savedDesigns, deleteDesign}: Props){
     const scale = 0.5
+    
+    
    
   return(
         <section>
@@ -33,6 +37,7 @@ function SavedDesigns({editDesign,savedDesigns, deleteDesign}: Props){
         <p>Rotation: {item.rotation}</p>
         <button onClick={()=> deleteDesign(item.id)}>Delete</button>
         <button onClick={()=> editDesign(item.id)}>Edit</button>
+        <button onClick={()=> onAddCart(item.id)}>Add to Cart</button>
 
       </div>
     ))}

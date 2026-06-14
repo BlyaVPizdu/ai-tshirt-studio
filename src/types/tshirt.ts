@@ -11,3 +11,18 @@ export type Design = {
   rotation: number
 }
 export type AiProvider = "pollinations" | "openai" | "comfy"
+export type Order = {
+  id: number
+  items: CartItem[]
+  designId: number
+  customerName: string
+  phone: string
+  address: string
+  status: "new" | "in_progress" | "done"
+  totalPrice: number
+}
+export type CartItem = {
+  designId: number
+  quantity: number
+  size: "S" | "M" | "L" | "XL"
+}

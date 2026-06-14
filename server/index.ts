@@ -1,36 +1,105 @@
+import { Design, Order } from './../src/types/tshirt';
 import express from "express"
 import cors from "cors"
+import multer from "multer"
 import { generateImage } from "./providers/pollinationsProvider"
+
 const app = express()
 const PORT = 3002
 app.use(cors())
 app.use(express.json())
+const designs: Design[] = []
+const orders: Order[] = []
 
 /*
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 */
+
+app.get("/designs", (req, res) => {
+  res.json(designs)
+})
+app.get("/orders", (req, res)=>{
+    res.json(orders)
+})
+app.post("/designs", (req, res) => {
+  const design = {
+    id: Date.now(),
+    ...req.body,
+  }
+
+  designs.push(design)
+
+  res.status(201).json(design)
+})
+app.post("/orders", (req, res) => {
+  const order = {
+    id: Date.now(),
+    ...req.body,
+  }
+
+  designs.push(order)
+
+  res.status(201).json(order)
+})
 app.post("/generate", async (req, res) => {
-  const prompt = req.body.prompt
-  if(req.body.selectedProvider === "pollinations"){
-    const sendImage = await generateImage(prompt)
-    return res.json(sendImage)
-  }
-  if(req.body.selectedProvider === "openai"){
-  return  res.status(501).json({
-  error: "Provider not implemented"
-})}
-if(req.body.selectedProvider === "comfy"){
-    return res.status(501).json({
-  error: "Provider not implemented"
-})}
-  else {
+  try {
+    const { prompt, selectedProvider } = req.body
+
+    if (!prompt || typeof prompt !== "string") {
+      return res.status(400).json({
+        error: "Prompt is required"
+      })
+    }
+
+    if (selectedProvider === "pollinations") {
+      const result = await generateImage(prompt)
+      return res.json(result)
+    }
+
+    if (selectedProvider === "openai") {
+      return res.status(501).json({
+        error: "Provider not implemented"
+      })
+    }
+
+    if (selectedProvider === "comfy") {
+      return res.status(501).json({
+        error: "Provider not implemented"
+      })
+    }
+
     return res.status(400).json({
-     error: "Unknown provider"
-})
+      error: "Unknown provider"
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: "Image generation failed"
+    })
   }
 })
+app.use("/uploads", express.static("uploads"))
+
+const storage = multer.diskStorage({
+  destination: "uploads",
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`)
+  },
+})
+  
+const upload = multer({ storage })
+
+app.post("/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" })
+  }
+
+  res.json({
+    imageUrl: `/uploads/${req.file.filename}`,
+  })
+})
+
 
 app.get("/health" , (req, res)=>{
     res.json({"server": "OK"})
