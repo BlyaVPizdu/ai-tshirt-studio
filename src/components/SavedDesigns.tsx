@@ -38,6 +38,7 @@ function SavedDesigns({ onAddCart, editDesign,savedDesigns, deleteDesign}: Props
         <button onClick={()=> deleteDesign(item.id)}>Delete</button>
         <button onClick={()=> editDesign(item.id)}>Edit</button>
         <button onClick={()=> onAddCart(item.id)}>Add to Cart</button>
+        
 
       </div>
     ))}

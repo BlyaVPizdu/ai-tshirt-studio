@@ -7,6 +7,7 @@ import ShirtSelector from './components/ShirtSelector'
 import ShirtPreview from './components/ShirtPreview'
 import PromptForm from './components/PromptForm'
 import SavedDesigns from './components/SavedDesigns'
+import Cart from './components/Cart'
 
   function App() {
     const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
@@ -115,45 +116,50 @@ import SavedDesigns from './components/SavedDesigns'
     setError("Could not upload image")
   }
 }   
-    const addCart =  (id: number)=>{
-          const cartItem: CartItem= {
-                designId: id,
-                quantity: 1,
-                size: "M"
-                                    }
-          setCartItems(prev=> [...prev, cartItem])
-          const existingItem = cartItems.find(item=> item.designId === id)
-          if(!existingItem){
-              setCartItems(prev => prev.map(c=> c.quantity +1 ))
-          }
-          
-        }
+      const addCart = (id: number) => {
+  setCartItems(prev => {
+    const existingItem = prev.find(item => item.designId === id)
+
+    if (existingItem) {
+      return prev.map(item =>
+        item.designId === id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    }
+
+    const cartItem: CartItem = {
+      designId: id,
+      quantity: 1,
+      size: "M"
+    }
+
+    return [...prev, cartItem]
+  })
+}
         const removeCart = (id: number)=>{
           setCartItems(prev => prev.filter(c=> c.designId !== id))
         }
-
+        const changeQuantity = (id: number, delta: number) =>{
+           setCartItems(prev => {
+          const changegQuantity = prev.map(item => 
+          item.designId === id
+          ? { ...item, quantity: item.quantity + delta }
+          : item )
+          return changegQuantity.filter(item=> item.quantity>0)
+   })
+        }
         
         
 
     return (
       <main>
-        <h2>Cart</h2>
-
-    {cartItems.map(item => {
-  const design = savedDesigns.find(
-    d => d.id === item.designId
-  )
-  if(setCartItems(prev => prev.find(item=> item.designId === id)))
-   
-        return (
-    <div key={item.designId}>
-      <p>{design?.prompt}</p>
-      <p>Size: {item.size}</p>
-      <p>Qty: {item.quantity+1}</p>
-      <button onClick={()=> removeCart(item.designId)}>Remove from Cart</button>
-    </div>
-  )
-      })}
+        <Cart
+          cartItems = {cartItems}
+          changeQuantity = {changeQuantity}
+          removeCart={removeCart}
+          savedDesigns = {savedDesigns}
+        />
         <ShirtSelector
         shirtColor = {shirtColor}
         setShirtColor = {setShirtColor}/>
