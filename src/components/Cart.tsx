@@ -4,8 +4,9 @@ type Props ={
     removeCart:  (id: number) => void
     changeQuantity:  (id: number, delta: number) => void
     savedDesigns: Design[]
+    onCheckout: () => void  
 }
-function Cart({savedDesigns, cartItems, removeCart, changeQuantity}:Props){
+function Cart({onCheckout, savedDesigns, cartItems, removeCart, changeQuantity}:Props){
 return (
     <div>
     <h2>Cart</h2>
@@ -26,6 +27,8 @@ return (
       <span>{item.quantity}</span>
       <button onClick={() => changeQuantity(item.designId, +1)}>+</button>
       <button onClick={()=> removeCart(item.designId)}>Remove from Cart</button>
+      <button onClick={onCheckout} disabled={cartItems.length === 0}>
+      Checkout </button>
     </div>
   )
       })}

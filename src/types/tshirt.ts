@@ -26,3 +26,8 @@ export type CartItem = {
   quantity: number
   size: "S" | "M" | "L" | "XL"
 }
+export type CheckoutData = {
+  customerName: string
+  phone: string
+  address: string
+}

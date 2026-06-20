@@ -8,6 +8,7 @@ import ShirtPreview from './components/ShirtPreview'
 import PromptForm from './components/PromptForm'
 import SavedDesigns from './components/SavedDesigns'
 import Cart from './components/Cart'
+import ChekoutFrom from './components/CheckOutFrom'
 
   function App() {
     const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
@@ -23,6 +24,7 @@ import Cart from './components/Cart'
     const [error, setError] = useState<string | null>(null)
     const [selectedProvider, setSelectedProvider] = useState<AiProvider>("pollinations")
     const [cartItems, setCartItems] = useState<CartItem[]>([])
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -154,11 +156,20 @@ import Cart from './components/Cart'
 
     return (
       <main>
+        {isCheckoutOpen && (
+        <CheckoutForm
+          onCancel={() => setIsCheckoutOpen(false)}
+          onPlaceOrder={(data) => {
+            console.log(data)
+           }}
+           />
+            )}
         <Cart
           cartItems = {cartItems}
           changeQuantity = {changeQuantity}
           removeCart={removeCart}
           savedDesigns = {savedDesigns}
+          onCheckout={() => setIsCheckoutOpen(true)}
         />
         <ShirtSelector
         shirtColor = {shirtColor}
