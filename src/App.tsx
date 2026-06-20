@@ -8,7 +8,7 @@ import ShirtPreview from './components/ShirtPreview'
 import PromptForm from './components/PromptForm'
 import SavedDesigns from './components/SavedDesigns'
 import Cart from './components/Cart'
-import ChekoutFrom from './components/CheckOutFrom'
+import ChekoutForm from './components/CheckoutForm'
 
   function App() {
     const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
@@ -22,7 +22,7 @@ import ChekoutFrom from './components/CheckOutFrom'
     const [editingDesignId, setEditingDesignId] = useState<number | null>(null)
     const [isGenerating, setIsGenerating] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [selectedProvider, setSelectedProvider] = useState<AiProvider>("pollinations")
+    const [selectedProvider, setSelectedProvider] = useState<AiProvider>("comfy")
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
     useEffect(()=>{
@@ -157,7 +157,7 @@ import ChekoutFrom from './components/CheckOutFrom'
     return (
       <main>
         {isCheckoutOpen && (
-        <CheckoutForm
+        <ChekoutForm
           onCancel={() => setIsCheckoutOpen(false)}
           onPlaceOrder={(data) => {
             console.log(data)

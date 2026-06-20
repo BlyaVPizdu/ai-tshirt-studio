@@ -1,6 +1,7 @@
 import { useRef, useState } from "react"
 import type { AiProvider } from "../types/tshirt"
 
+
 type Props ={
     prompt: string
     onPromptChange: (value: string) => void
@@ -62,7 +63,6 @@ function PromptForm({selectedProvider, onProviderChange, onUploadImage, error, i
             placeholder="tired knight after battle, sword down, vintage style..."
           />
             <select value = {selectedProvider} onChange={(e)=> onProviderChange(e.target.value as AiProvider)}>
-                  <option value="pollinations">pollinations</option>
                     <option value="openai">openai</option>
                      <option value="comfy">comfy</option>
             </select>

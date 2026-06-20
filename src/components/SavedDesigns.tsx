@@ -1,4 +1,4 @@
-import type {  CartItem, Design } from "../types/tshirt"
+import type { Design } from "../types/tshirt"
 import { shirtImages } from "../constants/shirtImages"
 
 type Props = {

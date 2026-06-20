@@ -2,7 +2,7 @@ import { Design, Order } from './../src/types/tshirt';
 import express from "express"
 import cors from "cors"
 import multer from "multer"
-import { generateImage } from "./providers/pollinationsProvider"
+import { generateImage as generateComfyImage } from "./providers/comfyProvider"
 
 const app = express()
 const PORT = 3002
@@ -53,11 +53,6 @@ app.post("/generate", async (req, res) => {
       })
     }
 
-    if (selectedProvider === "pollinations") {
-      const result = await generateImage(prompt)
-      return res.json(result)
-    }
-
     if (selectedProvider === "openai") {
       return res.status(501).json({
         error: "Provider not implemented"
@@ -65,10 +60,9 @@ app.post("/generate", async (req, res) => {
     }
 
     if (selectedProvider === "comfy") {
-      return res.status(501).json({
-        error: "Provider not implemented"
-      })
-    }
+  const result = await generateComfyImage(prompt)
+  return res.json(result)
+}
 
     return res.status(400).json({
       error: "Unknown provider"

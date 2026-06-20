@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CheckoutData } from "../types/tshirt"
+import type { CheckoutData } from "../types/tshirt"
 
 
 type Props = {
