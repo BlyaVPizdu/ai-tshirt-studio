@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 .env
 .env.local
+
+node_modules/
+server/node_modules/
+uploads/
+ComfyUI_windows_portable/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.gguf
