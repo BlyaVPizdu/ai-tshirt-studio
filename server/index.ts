@@ -39,7 +39,7 @@ app.post("/orders", (req, res) => {
     ...req.body,
   }
 
-  designs.push(order)
+  orders.push(order)
 
   res.status(201).json(order)
 })
@@ -68,9 +68,10 @@ app.post("/generate", async (req, res) => {
       error: "Unknown provider"
     })
   } catch (error) {
-    return res.status(500).json({
-      error: "Image generation failed"
-    })
+  console.error(error)
+  return res.status(500).json({
+    error: "Image generation failed"
+  })
   }
 })
 app.use("/uploads", express.static("uploads"))
