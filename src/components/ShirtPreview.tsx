@@ -21,9 +21,12 @@ type Props = {
     saveDesign: () => Promise<void>
     onCancelEdit: ()=> void
     editingDesignId: number | null
+    setPlacementCommand: (value: string)=> void
+    placementCommand: string
+    onApplyPlacementCommand: ()=> void
 }
 
-function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
+function ShirtPreview({onApplyPlacementCommand, placementCommand, setPlacementCommand, editingDesignId ,onCancelEdit, saveDesign, rotation, setRotation, setSize, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
     const previewRef = useRef<HTMLInputElement>(null)
     const changeSize = (newSize: number)=>{
           const minSize = 50
@@ -82,6 +85,15 @@ function ShirtPreview({editingDesignId ,onCancelEdit, saveDesign, rotation, setR
       <button onClick={()=> setRotation(rotation + 15)}>Rotate right</button>
       <button onClick={saveDesign}>{editingDesignId !== null ? "Update Design" :"Save Design"}</button>
       <button onClick={exportPreview}>Export PNG</button>
+      <textarea
+        value={placementCommand}
+      onChange={(e) => setPlacementCommand(e.target.value)}
+      placeholder="Например: подними принт чуть выше"
+      />
+
+<button onClick={onApplyPlacementCommand}>
+  Apply command
+</button>
       {editingDesignId !== null && (<button onClick={onCancelEdit}>Cancel edit</button>)}
         </div>
     }</div>

@@ -2,7 +2,6 @@ import { workflow } from "../workflows/flux_api"
 const COMFY_URL = "http://100.107.54.38:8188"
 
 export async function generateImage(prompt: string) {
-  console.log("NEW VERSION")
   const promptWorkflow = structuredClone(workflow)
   promptWorkflow["6"].inputs.text = prompt
   promptWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000000000000)
@@ -19,13 +18,8 @@ export async function generateImage(prompt: string) {
   console.log(data)
  
   const history = await waitForHistory(data.prompt_id)
-console.log(history)
-console.log(promptWorkflow["6"].inputs.text)
-console.log(Object.keys(promptWorkflow))
-console.log(promptWorkflow["9"])
 const images = history.outputs?.["9"]?.images
 
-console.log("IMAGES:", images)
 
 if (!images || images.length === 0) {
   throw new Error("No images in ComfyUI history")
@@ -39,7 +33,7 @@ const imageUrl =
   `&type=${encodeURIComponent(imageData.type)}` +
   `&t=${Date.now()}`
 
-console.log("IMAGE URL:", imageUrl)
+
 
 return {
   image: imageUrl,

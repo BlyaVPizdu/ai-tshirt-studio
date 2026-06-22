@@ -1,6 +1,6 @@
   import { useEffect, useState } from 'react'
   import type { ShirtColor, Design, AiProvider, CartItem } from './types/tshirt'
-  import { uploadImage, createDesign, deleteDesignApi, getDesigns, updateDesign, createOrder } from './api/api'
+  import { uploadImage, createDesign, deleteDesignApi, getDesigns, updateDesign } from './api/api'
   import { generateDesignImage } from './utils/generateDesignImage'
   import './App.css'
 import ShirtSelector from './components/ShirtSelector'
@@ -9,6 +9,8 @@ import PromptForm from './components/PromptForm'
 import SavedDesigns from './components/SavedDesigns'
 import Cart from './components/Cart'
 import ChekoutForm from './components/CheckoutForm'
+import { applyDesignCommandApi } from './api/api'
+
 
   function App() {
     const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
@@ -24,7 +26,9 @@ import ChekoutForm from './components/CheckoutForm'
     const [error, setError] = useState<string | null>(null)
     const [selectedProvider, setSelectedProvider] = useState<AiProvider>("comfy")
     const [cartItems, setCartItems] = useState<CartItem[]>([])
+    const [placementCommand, setPlacementCommand] = useState("")
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -42,6 +46,9 @@ import ChekoutForm from './components/CheckoutForm'
           }
          const image = await generateDesignImage(prompt, selectedProvider)
           setGeneratedImage(image)
+          setPosition({ x: 115, y: 120 })
+          setSize(170)
+          setRotation(0)
       }
       catch(error){
           setError(error instanceof Error ? error.message : "Could not generate image")
@@ -151,6 +158,18 @@ import ChekoutForm from './components/CheckoutForm'
           return changegQuantity.filter(item=> item.quantity>0)
    })
         }
+        const handleApplyPlacementCommand = async () => {
+  const result = await applyDesignCommandApi({
+    command: placementCommand,
+    position,
+    size,
+    rotation,
+  })
+
+  setPosition(result.position)
+  setSize(result.size)
+  setRotation(result.rotation)
+}
         
         
 
@@ -199,6 +218,9 @@ import ChekoutForm from './components/CheckoutForm'
       shirtColor={shirtColor}
       onCancelEdit = {cancelEdit}
       editingDesignId= {editingDesignId}
+      setPlacementCommand = {setPlacementCommand}
+      placementCommand = {placementCommand}
+      onApplyPlacementCommand = {handleApplyPlacementCommand}
       />
       <SavedDesigns
       savedDesigns = {savedDesigns}

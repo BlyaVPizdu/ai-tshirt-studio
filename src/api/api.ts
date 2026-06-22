@@ -76,6 +76,34 @@ export async function uploadImage(file: File): Promise<{ imageUrl: string }> {
 
   return res.json()
 }
+type DesignCommandPayload = {
+  command: string
+  position: { x: number; y: number }
+  size: number
+  rotation: number
+}
+
+type DesignCommandResult = {
+  position: { x: number; y: number }
+  size: number
+  rotation: number
+}
+
+export async function applyDesignCommandApi(
+  payload: DesignCommandPayload
+): Promise<DesignCommandResult> {
+  const res = await fetch(`${API_URL}/design-command`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    throw new Error("Ошибка применения команды")
+  }
+
+  return res.json()
+}
 
 
 
