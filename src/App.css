@@ -44,3 +44,8 @@
   position: absolute;
   user-select: none;
 }
+
+.app {
+  min-height: 100vh;
+  background: #f5f7fb;
+}

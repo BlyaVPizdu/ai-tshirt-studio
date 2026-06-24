@@ -9,7 +9,7 @@ import PromptForm from './components/PromptForm'
 import SavedDesigns from './components/SavedDesigns'
 import Cart from './components/Cart'
 import ChekoutForm from './components/CheckoutForm'
-import { applyDesignCommandApi } from './api/api'
+import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
 
 
   function App() {
@@ -46,9 +46,10 @@ import { applyDesignCommandApi } from './api/api'
           }
          const image = await generateDesignImage(prompt, selectedProvider)
           setGeneratedImage(image)
-          setPosition({ x: 115, y: 120 })
-          setSize(170)
-          setRotation(0)
+          const placement = await getAutoPlacementApi()
+          setPosition(placement.position)
+          setSize(placement.size)
+          setRotation(placement.rotation)
       }
       catch(error){
           setError(error instanceof Error ? error.message : "Could not generate image")
@@ -174,7 +175,7 @@ import { applyDesignCommandApi } from './api/api'
         
 
     return (
-      <main>
+      <main className='app'>
         {isCheckoutOpen && (
         <ChekoutForm
           onCancel={() => setIsCheckoutOpen(false)}

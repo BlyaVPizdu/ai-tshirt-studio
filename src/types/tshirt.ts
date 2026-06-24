@@ -31,3 +31,4 @@ export type CheckoutData = {
   phone: string
   address: string
 }
+export type PlacementPreset = "center" | "left_chest" | "back"

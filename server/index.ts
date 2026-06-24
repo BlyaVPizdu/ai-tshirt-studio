@@ -3,7 +3,7 @@ import express from "express"
 import cors from "cors"
 import multer from "multer"
 import { generateImage as generateComfyImage } from "./providers/comfyProvider"
-import { applyPlacementCommand } from './providers/placementProvider';
+import { getAutoPlacement, applyPlacementCommand } from './providers/placementProvider';
 
 const app = express()
 const PORT = 3002
@@ -75,8 +75,12 @@ app.post("/generate", async (req, res) => {
   })
   }
 })
-app.post("/design-command", (req, res) => {
-  const result = applyPlacementCommand(req.body)
+app.post("/design-command", async (req, res) => {
+  const result = await applyPlacementCommand(req.body)
+  res.json(result)
+})
+app.post("/auto-placement", (req, res) => {
+  const result = getAutoPlacement()
   res.json(result)
 })
 app.use("/uploads", express.static("uploads"))

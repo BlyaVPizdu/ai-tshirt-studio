@@ -104,6 +104,23 @@ export async function applyDesignCommandApi(
 
   return res.json()
 }
+type PlacementResult = {
+  position: { x: number; y: number }
+  size: number
+  rotation: number
+}
+
+export async function getAutoPlacementApi(): Promise<PlacementResult> {
+  const res = await fetch(`${API_URL}/auto-placement`, {
+    method: "POST",
+  })
+
+  if (!res.ok) {
+    throw new Error("Ошибка auto placement")
+  }
+
+  return res.json()
+}
 
 
 
