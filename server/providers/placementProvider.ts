@@ -11,18 +11,9 @@ export async function applyPlacementCommand(input: ApplyPlacementInput) {
   let size = input.size
   let rotation = input.rotation
 
-  const text = input.command.toLowerCase()
   
-
-  if (text.includes("выше")) y -= 20
-  if (text.includes("ниже")) y += 20
-  if (text.includes("левее")) x -= 20
-  if (text.includes("правее")) x += 20
-  if (text.includes("больше")) size += 20
-  if (text.includes("меньше")) size -= 20
-  if (text.includes("вправо")) rotation += 15
-  if (text.includes("влево")) rotation -= 15
   const aiCommand = await getPlacementCommandFromLlm(input)
+  console.log("AI COMMAND:", aiCommand)
 
 x = x + aiCommand.moveX
 y = y + aiCommand.moveY
@@ -37,6 +28,8 @@ rotation = rotation + aiCommand.rotate
     position: { x, y },
     size,
     rotation,
+    editImage: aiCommand.editImage,
+  editPrompt: aiCommand.editPrompt,
   }
 }
 export function getAutoPlacement() {
@@ -92,5 +85,6 @@ if (percent !== null) {
     moveY,
     scale,
     rotate,
+    
   }
 }
