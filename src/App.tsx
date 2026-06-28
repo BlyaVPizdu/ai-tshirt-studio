@@ -1,15 +1,17 @@
-  import { useEffect, useState } from 'react'
+  import { useEffect, useState, useRef } from 'react'
   import type { ShirtColor, Design, AiProvider, CartItem } from './types/tshirt'
   import { uploadImage, createDesign, deleteDesignApi, getDesigns, updateDesign } from './api/api'
   import { generateDesignImage } from './utils/generateDesignImage'
   import './App.css'
-import ShirtSelector from './components/ShirtSelector'
-import ShirtPreview from './components/ShirtPreview'
-import PromptForm from './components/PromptForm'
+import ShirtSelector from './components/editor/PreviewPanel/ShirtSelector'
+import ShirtPreview from './components/editor/PreviewPanel/ShirtPreview'
+import PromptForm from './components/editor/PromptPanel/PromptPanel'
 import SavedDesigns from './components/SavedDesigns'
 import Cart from './components/Cart'
 import ChekoutForm from './components/CheckoutForm'
 import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
+import PropertiesPanel from './components/editor/PropertiesPanel/PropertiesPanel'
+import { toPng } from "html-to-image"
 
 
   function App() {
@@ -171,11 +173,22 @@ import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
   setSize(result.size)
   setRotation(result.rotation)
 }
+const previewRef = useRef<HTMLDivElement>(null)
+    
+      const exportPreview = async ()=>{
+          if (!previewRef.current) return
+        const dataUrl = await toPng(previewRef.current)
+        const link = document.createElement("a")
+        link.href = dataUrl
+        link.download = "t-shirt-design.png"
+        link.click()
+      }
         
         
 
     return (
       <main className='app'>
+        <header className='app-header'>
         {isCheckoutOpen && (
         <ChekoutForm
           onCancel={() => setIsCheckoutOpen(false)}
@@ -184,6 +197,7 @@ import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
            }}
            />
             )}
+            
         <Cart
           cartItems = {cartItems}
           changeQuantity = {changeQuantity}
@@ -191,9 +205,10 @@ import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
           savedDesigns = {savedDesigns}
           onCheckout={() => setIsCheckoutOpen(true)}
         />
-        <ShirtSelector
-        shirtColor = {shirtColor}
-        setShirtColor = {setShirtColor}/>
+        </header>
+        
+        <section className="editor-layout">
+          
         <PromptForm
         onUploadImage = {handleUploadImage}
         prompt = {prompt}
@@ -204,7 +219,10 @@ import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
         onProviderChange = {setSelectedProvider}
         selectedProvider = {selectedProvider}
         />
-       
+        <section className='preview-panel'>
+       <ShirtSelector
+        shirtColor = {shirtColor}
+        setShirtColor = {setShirtColor}/>
       <ShirtPreview
       isDragging = {isDragging}
       size = {size}
@@ -212,23 +230,38 @@ import { getAutoPlacementApi, applyDesignCommandApi } from './api/api'
       setIsDragging = {setIsDragging}
       generatedImage = {generatedImage}
       position = {position}
-      setSize= {setSize}
-      setRotation = {setRotation}
       rotation = {rotation}
-      saveDesign = {saveDesign}
       shirtColor={shirtColor}
-      onCancelEdit = {cancelEdit}
       editingDesignId= {editingDesignId}
-      setPlacementCommand = {setPlacementCommand}
-      placementCommand = {placementCommand}
-      onApplyPlacementCommand = {handleApplyPlacementCommand}
+      previewRef = {previewRef}
       />
+      </section>
+      
+  
+  <PropertiesPanel
+  position = {position}
+  saveDesign={saveDesign}
+  setSize = {setSize}
+  size = {size}
+  setPosition = {setPosition}
+  setRotation = {setRotation}
+  exportPreview = {exportPreview}
+  placementCommand= {placementCommand}
+  setPlacementCommand={setPlacementCommand}
+  onApplyPlacementCommand = {handleApplyPlacementCommand}
+  rotation={rotation}
+  editingDesignId={editingDesignId}
+  onCancelEdit={cancelEdit}
+  />
+  </section>
+  <section className="saved-designs-section">
       <SavedDesigns
       savedDesigns = {savedDesigns}
       deleteDesign= {deleteDesign}
       editDesign = {editDesign}
       onAddCart = {addCart}
-      />   
+      />
+      </section>   
         </main>
         
     )
