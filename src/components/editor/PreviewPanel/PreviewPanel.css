@@ -36,14 +36,20 @@
 .shirt-preview {
   flex: 1;
   position: relative;
-  min-height: 0;
+  min-height: 500px;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden
 }
 
 .shirt-image {
    max-height: 70%;
   max-width: 70%;
   object-fit: contain;
+}
+.design-image {
+  position: absolute;
+  object-fit: contain;
+  cursor: grab;
 }

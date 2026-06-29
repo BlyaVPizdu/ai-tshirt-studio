@@ -1,12 +1,12 @@
-import { workflow } from "../workflows/flux_api"
+import { workflow2 } from "../workflows/flux_dev_api"
 import fs from "fs"
 import path from "path"
 
 const COMFY_URL = "http://127.0.0.1:8188"
 export async function generateImage(prompt: string) {
-  const promptWorkflow = structuredClone(workflow)
-  promptWorkflow["6"].inputs.text = prompt
-  promptWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000000000000)
+  const promptWorkflow = structuredClone(workflow2)
+  promptWorkflow["56:51"].inputs.text = prompt
+  promptWorkflow["56:52"].inputs.seed = Math.floor(Math.random() * 1000000000000000)
   const res = await fetch(`${COMFY_URL}/prompt`,{
      method: "POST",
   headers: {

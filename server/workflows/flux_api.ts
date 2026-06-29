@@ -2,7 +2,7 @@ export const workflow = {
   "3": {
     "inputs": {
       "seed": 156680208700286,
-      "steps": 20,
+      "steps": 4,
       "cfg": 8,
       "sampler_name": "euler",
       "scheduler": "normal",
@@ -40,8 +40,8 @@ export const workflow = {
   },
   "5": {
     "inputs": {
-      "width": 512,
-      "height": 512,
+      width: 1024,
+      height: 1024,
       "batch_size": 1
     },
     "class_type": "EmptyLatentImage",

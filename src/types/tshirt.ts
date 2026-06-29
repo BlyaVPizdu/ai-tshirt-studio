@@ -10,7 +10,7 @@ export type Design = {
   size: number
   rotation: number
 }
-export type AiProvider = "comfy"
+export type AiProvider = "comfy" | "flux-dev"
 export type Order = {
   id: number
   items: CartItem[]

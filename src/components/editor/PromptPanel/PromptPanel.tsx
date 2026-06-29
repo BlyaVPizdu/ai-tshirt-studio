@@ -71,6 +71,7 @@ function PromptForm({selectedProvider, onProviderChange, onUploadImage, error, i
             <select value = {selectedProvider} onChange={(e)=> onProviderChange(e.target.value as AiProvider)}>
                     <option value="openai">openai</option>
                      <option value="comfy">comfy</option>
+                     <option value="flux-dev">flux-dev</option>
             </select>
             </div>
             <div className="reference-section">

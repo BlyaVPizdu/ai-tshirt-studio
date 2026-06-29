@@ -4,6 +4,7 @@ import cors from "cors"
 import multer from "multer"
 import { generateImage as generateComfyImage } from "./providers/comfyProvider"
 import { getAutoPlacement, applyPlacementCommand } from './providers/placementProvider';
+import { generateImage as  generateFluxDevImage } from './providers/fluxdev';
 
 const app = express()
 const PORT = 3002
@@ -59,6 +60,10 @@ app.post("/generate", async (req, res) => {
         error: "Provider not implemented"
       })
     }
+    if (selectedProvider === "flux-dev") {
+  const result = await generateFluxDevImage(prompt)
+  return res.json(result)
+}
 
     if (selectedProvider === "comfy") {
   const result = await generateComfyImage(prompt)

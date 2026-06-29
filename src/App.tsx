@@ -48,6 +48,7 @@ import { toPng } from "html-to-image"
           }
          const image = await generateDesignImage(prompt, selectedProvider)
           setGeneratedImage(image)
+          console.log(position)
           const placement = await getAutoPlacementApi()
           setPosition(placement.position)
           setSize(placement.size)
@@ -124,6 +125,7 @@ import { toPng } from "html-to-image"
     const uploaded = await uploadImage(file)
 
     setGeneratedImage(`http://localhost:3002${uploaded.imageUrl}`)
+    
   } catch {
     setError("Could not upload image")
   }
@@ -173,6 +175,7 @@ import { toPng } from "html-to-image"
   setSize(result.size)
   setRotation(result.rotation)
 }
+
 const previewRef = useRef<HTMLDivElement>(null)
     
       const exportPreview = async ()=>{
@@ -234,6 +237,7 @@ const previewRef = useRef<HTMLDivElement>(null)
       shirtColor={shirtColor}
       editingDesignId= {editingDesignId}
       previewRef = {previewRef}
+      onAutoPlace={(x, y) => setPosition({ x, y })}
       />
       </section>
       
