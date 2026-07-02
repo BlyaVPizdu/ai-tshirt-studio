@@ -1,10 +1,10 @@
-import type { ShirtColor } from "../../../types/tshirt";
+import type { ShirtColor, PrintMode } from "../../../types/tshirt";
 import { shirtImages } from "../../../constants/shirtImages";
 import "./PreviewPanel.css";
 import { useRef } from "react";
 type Props = {
     isDragging: boolean
-    size: number
+    designSize: {width: number, height: number}
     setPosition: React.Dispatch<React.SetStateAction<{
     x: number;
     y: number;
@@ -18,64 +18,71 @@ type Props = {
     rotation: number
     editingDesignId: number | null  
     previewRef: React.RefObject<HTMLDivElement | null>
-    onAutoPlace: (x: number, y: number) => void
+    scale: number
+    setScale: React.Dispatch<React.SetStateAction<number>>
+    printMode: PrintMode
+    setPrintMode: React.Dispatch<React.SetStateAction<PrintMode>>
 }
 
-function ShirtPreview({onAutoPlace, previewRef, rotation, position, isDragging,size,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
-    const shirtImageRef = useRef<HTMLImageElement | null>(null)
-     const centerDesignOnShirt = () => {
-  if (!shirtImageRef.current || !previewRef.current) return
+function ShirtPreview({printMode, setPrintMode, setScale, scale ,designSize, previewRef, rotation, position, isDragging,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
+  const finalWidth = designSize.width * scale
+const finalHeight = designSize.height * scale
 
-  const shirtRect = shirtImageRef.current.getBoundingClientRect()
-  const previewRect = previewRef.current.getBoundingClientRect()
-
-  const shirtX = shirtRect.left - previewRect.left
-  const shirtY = shirtRect.top - previewRect.top
-
-  const x = shirtX + shirtRect.width / 2 - size / 2
-  const y = shirtY + shirtRect.height * 0.35 - size / 2
-
-  onAutoPlace(x, y)
-}
+     
     return(
         <section>
-          <div ref={previewRef} className="shirt-preview"
-            onMouseMove={(event) => {
-                if (!isDragging) return
-            const rect = event.currentTarget.getBoundingClientRect()
-            const newX = event.clientX - rect.left - size / 2
-            const newY = event.clientY - rect.top - size / 2
-            const maxX = rect.width - size
-            const maxY = rect.height - size
+         <button
+  onClick={() => {
+    setPrintMode("front")
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }}
+>
+  Front Print
+</button>
 
-          setPosition({
-        x: Math.min(Math.max(newX, 0), maxX),
-       y: Math.min(Math.max(newY, 0), maxY)
-      })}}
-            
-            onMouseUp={() => setIsDragging(false)}
-            onMouseLeave={() => setIsDragging(false)}>
-              
-        <img ref={shirtImageRef} className="shirt-image"
-                    src={shirtImages[shirtColor]} alt="T-shirt"/>
-                    
-        
-        {generatedImage && (
-  <img
-    className="design-image"
-    src={generatedImage}
-    alt="Generated design"
-    style={{
-      left: position.x,
-      top: position.y,
-      width: size,
-      transform: `rotate(${rotation}deg)`
-    }}
-    onLoad={centerDesignOnShirt}
-    onMouseDown={() => setIsDragging(true)}
-    onDragStart={(event) => event.preventDefault()}
-  />
-)}
+<button
+  onClick={() => {
+    setPrintMode("allOver")
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }}
+>
+  All Over
+</button>
+         <div ref={previewRef} className="shirt-preview">
+  <div className="shirt-canvas">
+    <img
+      className="shirt-image"
+      src={shirtImages[shirtColor]}
+      alt="T-shirt"
+    />
+
+  <div
+  className={printMode === "allOver" ? "full-shirt-area" : "front-print-area"}
+>
+  <p style={{ position: "absolute", zIndex: 999, color: "red" }}>
+    {printMode}
+  </p>
+
+  {generatedImage && (
+    <img
+      className="design-image"
+      src="/mockups/test-design.jpg"
+      alt="Generated design"
+      style={{
+        left: position.x,
+        top: position.y,
+        width: finalWidth,
+        height: finalHeight,
+        transform: `rotate(${rotation}deg)`
+      }}
+      onMouseDown={() => setIsDragging(true)}
+      onDragStart={(event) => event.preventDefault()}
+    />
+  )}
+</div>
+  </div>
 </div>
         </section>
     )

@@ -4,9 +4,15 @@ type Props = {
     x: number;
     y: number;
 }
-  size: number
+  size: {
+    width: number;
+    height: number;
+}
   rotation: number
-  setSize: React.Dispatch<React.SetStateAction<number>>
+  setSize: React.Dispatch<React.SetStateAction<{
+    width: number;
+    height: number;
+}>>
   setPosition: React.Dispatch<React.SetStateAction<{
     x: number;
     y: number;

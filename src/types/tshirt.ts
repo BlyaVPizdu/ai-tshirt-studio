@@ -7,7 +7,10 @@ export type Design = {
   image: string
   shirtColor: ShirtColor
   position: {x: number, y: number}
-  size: number
+  size: {
+    width: number
+    height: number
+  }
   rotation: number
 }
 export type AiProvider = "comfy" | "flux-dev"
@@ -32,3 +35,4 @@ export type CheckoutData = {
   address: string
 }
 export type PlacementPreset = "center" | "left_chest" | "back"
+export type PrintMode = "front" | "allOver"

@@ -33,23 +33,58 @@
   background: rgba(79, 70, 229, 0.08);
   color: var(--color-primary);
 }
+
+
 .shirt-preview {
-  flex: 1;
-  position: relative;
-  min-height: 500px;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden
 }
 
-.shirt-image {
-   max-height: 70%;
-  max-width: 70%;
-  object-fit: contain;
+.shirt-canvas {
+  position: relative;
+  width: 600px;
 }
+
+
+.shirt-image {
+  width: 100%;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.front-print-area {
+  position: absolute;
+  left: 32%;
+  top: 18%;
+  width: 36%;
+  height: 48%;
+  overflow: hidden;
+  border: 2px dashed red;
+}
+
+.full-shirt-area {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 2;
+
+  -webkit-mask-image: url("/masks/white-front-mask.png");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-mode: luminance;
+
+  mask-image: url("/masks/white-front-mask.png");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-mode: luminance;
+}
+
 .design-image {
   position: absolute;
-  object-fit: contain;
-  cursor: grab;
+  z-index: 10;
+  display: block;
 }

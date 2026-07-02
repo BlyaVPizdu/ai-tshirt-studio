@@ -1,5 +1,5 @@
   import { useEffect, useState, useRef } from 'react'
-  import type { ShirtColor, Design, AiProvider, CartItem } from './types/tshirt'
+  import type { ShirtColor, Design, AiProvider, CartItem, PrintMode } from './types/tshirt'
   import { uploadImage, createDesign, deleteDesignApi, getDesigns, updateDesign } from './api/api'
   import { generateDesignImage } from './utils/generateDesignImage'
   import './App.css'
@@ -14,13 +14,14 @@ import PropertiesPanel from './components/editor/PropertiesPanel/PropertiesPanel
 import { toPng } from "html-to-image"
 
 
+
   function App() {
     const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
     const [prompt, setPrompt] = useState("")
     const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-    const [size, setSize] = useState(140)
+    const [designSize, setDesignSize] = useState({width: 260,height: 260})
     const [rotation, setRotation] = useState(0)
-    const [position, setPosition] = useState({x: 130, y: 130})
+    const [position, setPosition] = useState({x: 0, y: 0})
     const [isDragging, setIsDragging] = useState(false)
     const [savedDesigns, setSavedDesigns] = useState<Design[]>([])
     const [editingDesignId, setEditingDesignId] = useState<number | null>(null)
@@ -30,7 +31,9 @@ import { toPng } from "html-to-image"
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [placementCommand, setPlacementCommand] = useState("")
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
-
+    const [baseDesignSize, setBaseDesignSize] = useState({ width: 260, height: 320 })
+    const [scale, setScale] = useState(1)
+    const [printMode, setPrintMode] = useState<PrintMode>("front")
     useEffect(()=>{
       const loadDesigns = async ()=>{
           const data = await getDesigns()
@@ -46,13 +49,38 @@ import { toPng } from "html-to-image"
            setError("Please enter a prompt")
              return
           }
-         const image = await generateDesignImage(prompt, selectedProvider)
+         const image =  "/mockups/test-design.jpg"/*await generateDesignImage(prompt, selectedProvider)*/
+        
           setGeneratedImage(image)
-          console.log(position)
-          const placement = await getAutoPlacementApi()
+          const img = new Image()
+
+img.onload = () => {
+const SHIRT_WIDTH = 600
+const SHIRT_HEIGHT = 700
+
+  const ratio = img.width / img.height
+
+let width = SHIRT_WIDTH
+let height = width / ratio
+
+ if (height < SHIRT_HEIGHT) {
+  height = SHIRT_HEIGHT
+  width = height * ratio
+}
+  setDesignSize({ width, height })
+  setPosition({
+  x: (SHIRT_WIDTH - width) / 2,
+  y: (SHIRT_HEIGHT - height) / 2,
+})
+}
+
+img.src = image
+          setRotation(0)
+          /*const placement = await getAutoPlacementApi()
+          
           setPosition(placement.position)
           setSize(placement.size)
-          setRotation(placement.rotation)
+          setRotation(placement.rotation)*/
       }
       catch(error){
           setError(error instanceof Error ? error.message : "Could not generate image")
@@ -75,7 +103,7 @@ import { toPng } from "html-to-image"
          image: generatedImage,
         shirtColor,
         position, 
-        size,
+        size: designSize,
         rotation
       }
       const savedDesign = await updateDesign(editingDesignId, updatedDesign)
@@ -88,7 +116,7 @@ import { toPng } from "html-to-image"
       image: generatedImage,
       shirtColor,
       position, 
-      size,
+      size: designSize,
       rotation
     }
     const savedDesign = await createDesign(design)
@@ -106,7 +134,7 @@ import { toPng } from "html-to-image"
         setGeneratedImage(editingDesign.image)
         setShirtColor(editingDesign.shirtColor)
         setPosition(editingDesign.position)
-        setSize(editingDesign.size)
+        setDesignSize(editingDesign.size)
         setRotation(editingDesign.rotation)
         setEditingDesignId(id)
     }
@@ -115,7 +143,7 @@ import { toPng } from "html-to-image"
         setPrompt("")
         setGeneratedImage(null)
         setPosition({ x: 130, y: 130 })
-        setSize(140)
+        setDesignSize({ width: 140, height: 140 })
         setRotation(0)
     }
     const handleUploadImage = async (file: File) => {
@@ -163,18 +191,18 @@ import { toPng } from "html-to-image"
           return changegQuantity.filter(item=> item.quantity>0)
    })
         }
-        const handleApplyPlacementCommand = async () => {
+        /*const handleApplyPlacementCommand = async () => {
   const result = await applyDesignCommandApi({
     command: placementCommand,
     position,
-    size,
+    size: designSize,
     rotation,
   })
 
   setPosition(result.position)
-  setSize(result.size)
+  setDesignSize(result.size)
   setRotation(result.rotation)
-}
+}*/
 
 const previewRef = useRef<HTMLDivElement>(null)
     
@@ -187,7 +215,21 @@ const previewRef = useRef<HTMLDivElement>(null)
         link.click()
       }
         
-        
+        /* после shirtpreview <PropertiesPanel
+  position = {position}
+  saveDesign={saveDesign}
+  setSize = {setDesignSize}
+  designSize = {designSize}
+  setPosition = {setPosition}
+  setRotation = {setRotation}
+  exportPreview = {exportPreview}
+  placementCommand= {placementCommand}
+  setPlacementCommand={setPlacementCommand}
+  onApplyPlacementCommand = {handleApplyPlacementCommand}
+  rotation={rotation}
+  editingDesignId={editingDesignId}
+  onCancelEdit={cancelEdit}
+  />*/
 
     return (
       <main className='app'>
@@ -228,7 +270,7 @@ const previewRef = useRef<HTMLDivElement>(null)
         setShirtColor = {setShirtColor}/>
       <ShirtPreview
       isDragging = {isDragging}
-      size = {size}
+      designSize = {designSize}
       setPosition = {setPosition}
       setIsDragging = {setIsDragging}
       generatedImage = {generatedImage}
@@ -237,26 +279,15 @@ const previewRef = useRef<HTMLDivElement>(null)
       shirtColor={shirtColor}
       editingDesignId= {editingDesignId}
       previewRef = {previewRef}
-      onAutoPlace={(x, y) => setPosition({ x, y })}
+      scale = {scale}
+      setScale = {setScale}
+      printMode={printMode}
+      setPrintMode={setPrintMode}
       />
       </section>
       
   
-  <PropertiesPanel
-  position = {position}
-  saveDesign={saveDesign}
-  setSize = {setSize}
-  size = {size}
-  setPosition = {setPosition}
-  setRotation = {setRotation}
-  exportPreview = {exportPreview}
-  placementCommand= {placementCommand}
-  setPlacementCommand={setPlacementCommand}
-  onApplyPlacementCommand = {handleApplyPlacementCommand}
-  rotation={rotation}
-  editingDesignId={editingDesignId}
-  onCancelEdit={cancelEdit}
-  />
+
   </section>
   <section className="saved-designs-section">
       <SavedDesigns

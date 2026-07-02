@@ -2,7 +2,7 @@ import { workflow } from "../workflows/flux_api"
 import fs from "fs"
 import path from "path"
 
-const COMFY_URL = "http://127.0.0.1:8188"
+const COMFY_URL = "http://100.107.54.38:8188"
 export async function generateImage(prompt: string) {
   const promptWorkflow = structuredClone(workflow)
   promptWorkflow["6"].inputs.text = prompt
