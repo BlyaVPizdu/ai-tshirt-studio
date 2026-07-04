@@ -33,6 +33,10 @@ import { toPng } from "html-to-image"
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
     const [baseDesignSize, setBaseDesignSize] = useState({ width: 260, height: 320 })
     const [scale, setScale] = useState(1)
+    const finalDesignSize = {
+  width: baseDesignSize.width * scale,
+  height: baseDesignSize.height * scale,
+}
     const [printMode, setPrintMode] = useState<PrintMode>("front")
     useEffect(()=>{
       const loadDesigns = async ()=>{
@@ -55,23 +59,25 @@ import { toPng } from "html-to-image"
           const img = new Image()
 
 img.onload = () => {
-const SHIRT_WIDTH = 600
-const SHIRT_HEIGHT = 700
+  const AREA_WIDTH = printMode === "front" ? 216 : 600
+  const AREA_HEIGHT = printMode === "front" ? 288 : 700
 
   const ratio = img.width / img.height
 
-let width = SHIRT_WIDTH
-let height = width / ratio
+  let width = AREA_WIDTH
+  let height = width / ratio
 
- if (height < SHIRT_HEIGHT) {
-  height = SHIRT_HEIGHT
-  width = height * ratio
-}
-  setDesignSize({ width, height })
+  if (height < AREA_HEIGHT) {
+    height = AREA_HEIGHT
+    width = height * ratio
+  }
+
+  setBaseDesignSize({ width, height })
+  setScale(1)
   setPosition({
-  x: (SHIRT_WIDTH - width) / 2,
-  y: (SHIRT_HEIGHT - height) / 2,
-})
+    x: (AREA_WIDTH - width) / 2,
+    y: (AREA_HEIGHT - height) / 2,
+  })
 }
 
 img.src = image
@@ -103,8 +109,11 @@ img.src = image
          image: generatedImage,
         shirtColor,
         position, 
-        size: designSize,
-        rotation
+        size: finalDesignSize,
+        baseDesignSize,
+        scale,
+        rotation,
+        printMode
       }
       const savedDesign = await updateDesign(editingDesignId, updatedDesign)
       setSavedDesigns((p=>p.map(r=>r.id === editingDesignId ? savedDesign :r)))
@@ -116,8 +125,11 @@ img.src = image
       image: generatedImage,
       shirtColor,
       position, 
-      size: designSize,
-      rotation
+      size: finalDesignSize,
+      baseDesignSize,
+      scale,
+      rotation,
+      printMode,
     }
     const savedDesign = await createDesign(design)
     setSavedDesigns([...savedDesigns, savedDesign])
@@ -137,6 +149,9 @@ img.src = image
         setDesignSize(editingDesign.size)
         setRotation(editingDesign.rotation)
         setEditingDesignId(id)
+        setPrintMode(editingDesign.printMode)
+        setScale(editingDesign.scale)
+        setBaseDesignSize(editingDesign.baseDesignSize)
     }
      const cancelEdit = () =>{
         setEditingDesignId(null)
@@ -145,6 +160,10 @@ img.src = image
         setPosition({ x: 130, y: 130 })
         setDesignSize({ width: 140, height: 140 })
         setRotation(0)
+        setPrintMode("front")
+        setBaseDesignSize({ width: 260, height: 320 })
+        setScale(1)
+        setPrintMode("front")
     }
     const handleUploadImage = async (file: File) => {
   try {
@@ -191,18 +210,18 @@ img.src = image
           return changegQuantity.filter(item=> item.quantity>0)
    })
         }
-        /*const handleApplyPlacementCommand = async () => {
+        const handleApplyPlacementCommand = async () => {
   const result = await applyDesignCommandApi({
     command: placementCommand,
     position,
     size: designSize,
-    rotation,
+    rotation
   })
 
   setPosition(result.position)
   setDesignSize(result.size)
   setRotation(result.rotation)
-}*/
+}
 
 const previewRef = useRef<HTMLDivElement>(null)
     
@@ -215,21 +234,22 @@ const previewRef = useRef<HTMLDivElement>(null)
         link.click()
       }
         
-        /* после shirtpreview <PropertiesPanel
-  position = {position}
-  saveDesign={saveDesign}
-  setSize = {setDesignSize}
-  designSize = {designSize}
-  setPosition = {setPosition}
-  setRotation = {setRotation}
-  exportPreview = {exportPreview}
-  placementCommand= {placementCommand}
-  setPlacementCommand={setPlacementCommand}
-  onApplyPlacementCommand = {handleApplyPlacementCommand}
-  rotation={rotation}
-  editingDesignId={editingDesignId}
-  onCancelEdit={cancelEdit}
-  />*/
+    
+  const applyPrintMode = (mode: PrintMode) => {
+  setPrintMode(mode)
+  setScale(1)
+  setRotation(0)
+
+  if (mode === "front") {
+    setBaseDesignSize({ width: 216, height: 288 })
+    setPosition({ x: 0, y: 0 })
+  }
+
+  if (mode === "allOver") {
+    setBaseDesignSize({ width: 600, height: 700 })
+    setPosition({ x: 0, y: 0 })
+  }
+}
 
     return (
       <main className='app'>
@@ -270,7 +290,7 @@ const previewRef = useRef<HTMLDivElement>(null)
         setShirtColor = {setShirtColor}/>
       <ShirtPreview
       isDragging = {isDragging}
-      designSize = {designSize}
+      designSize = {finalDesignSize}
       setPosition = {setPosition}
       setIsDragging = {setIsDragging}
       generatedImage = {generatedImage}
@@ -279,13 +299,32 @@ const previewRef = useRef<HTMLDivElement>(null)
       shirtColor={shirtColor}
       editingDesignId= {editingDesignId}
       previewRef = {previewRef}
-      scale = {scale}
       setScale = {setScale}
       printMode={printMode}
-      setPrintMode={setPrintMode}
+      onPrintModeChange = {applyPrintMode}
+      baseDesignSize = {baseDesignSize}
       />
-      </section>
       
+      </section>
+      <PropertiesPanel
+  position = {position}
+  saveDesign={saveDesign}
+  setSize = {setDesignSize}
+  designSize = {designSize}
+  setPosition = {setPosition}
+  setRotation = {setRotation}
+  exportPreview = {exportPreview}
+  placementCommand= {placementCommand}
+  setPlacementCommand={setPlacementCommand}
+  onApplyPlacementCommand = {handleApplyPlacementCommand}
+  rotation={rotation}
+  editingDesignId={editingDesignId}
+  onCancelEdit={cancelEdit}
+  scale={scale}
+  setScale={setScale}
+  printMode={printMode}
+  onPrintModeChange={applyPrintMode}
+  />
   
 
   </section>

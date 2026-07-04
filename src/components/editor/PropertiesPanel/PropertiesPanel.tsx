@@ -1,4 +1,5 @@
 import "./PropertiesPanel.css";
+import type { PrintMode } from "../../../types/tshirt";
 type Props = {
   position: {
     x: number;
@@ -25,41 +26,57 @@ type Props = {
   setPlacementCommand: (value: string)=> void
   onApplyPlacementCommand: ()=> void
    onCancelEdit: ()=> void
+   scale:  number
+   setScale:  React.Dispatch<React.SetStateAction<number>>
+   printMode: PrintMode
+   onPrintModeChange: (mode: PrintMode) => void
 }
-function PropertiesPanel({position, onCancelEdit, onApplyPlacementCommand, setPlacementCommand, placementCommand, exportPreview, editingDesignId, saveDesign, rotation, setRotation, setPosition,size, setSize}:Props) {
-  const changeSize = (newSize: number)=>{
-            const minSize = 50
-          const maxSize = 300
-      
-          if (newSize < minSize) {
-            setSize(minSize)
-            return
-          }
-      
-          if (newSize > maxSize) {
-            setSize(maxSize)
-            return
-          }
-      
-          setSize(newSize)
-        }
+function PropertiesPanel({scale, setScale, printMode, onPrintModeChange, position, onCancelEdit, onApplyPlacementCommand, setPlacementCommand, placementCommand, exportPreview, editingDesignId, saveDesign, rotation, setRotation, setPosition}:Props) {
+/*после position field <div className="ai-comand">
+      <label>AI Command</label>
+      <textarea
+        value={placementCommand}
+      onChange={(e) => setPlacementCommand(e.target.value)}
+      placeholder="Например: подними принт чуть выше"
+      />
+      <button className="apply-command" onClick={onApplyPlacementCommand}>
+  ✦ Apply command
+</button>
+    </div>*/
   return <section className="properties-panel">
     <h2>Properties</h2>
     <div className="property-group">
-  <label>Size</label>
+      <button
+        onClick={() => {
+          onPrintModeChange("front")
+          setScale(1)
+          setPosition({ x: 0, y: 0 })
+        }}
+      >
+        Front Print
+      </button>
+      
+      <button
+        onClick={() => {
+          onPrintModeChange("allOver")
+          setScale(1)
+          setPosition({ x: 0, y: 0 })
+        }}
+      >
+        All Over
+      </button>
+  <label>Scale</label>
 
-  <input
-    type="range"
-    min="50"
-    max="300"
-    value={size}
-    onChange={(e) => setSize(Number(e.target.value))}
-  />
-  <div className="size-controls ">
-  <button  onClick={() => changeSize(size - 10)}>-</button>
-  <span>{size}px</span>
-  <button onClick={() => changeSize(size + 10)} >+</button>
-  </div>
+  <button onClick={() => setScale(prev => Math.max(0.3, prev - 0.1))}>
+    -
+  </button>
+
+  <span>{Math.round(scale * 100)}%</span>
+
+  <button onClick={() => setScale(prev => Math.min(1, prev + 0.1))}>
+    +
+  </button>
+
 </div>
     <div className="property-group">
         <label>Rotation</label>
@@ -99,21 +116,11 @@ function PropertiesPanel({position, onCancelEdit, onApplyPlacementCommand, setPl
   </div>
   </div>
     </div>
-    <div className="ai-comand">
-      <label>AI Command</label>
-      <textarea
-        value={placementCommand}
-      onChange={(e) => setPlacementCommand(e.target.value)}
-      placeholder="Например: подними принт чуть выше"
-      />
-      <button className="apply-command" onClick={onApplyPlacementCommand}>
-  ✦ Apply command
-</button>
-    </div>
+    
     <button className="save-design" onClick={saveDesign}>{editingDesignId !== null ? "Update Design" :"Save Design"}</button>
     <button className="export" onClick={exportPreview}>Export PNG</button>
     <button className="reset" onClick={()=>{setPosition({ x: 130, y: 130 })
-        setSize(140)
+        setScale(1)
         setRotation(0)
       }}>Reset design</button>
 {editingDesignId !== null && (<button onClick={onCancelEdit}>Cancel edit</button>)}

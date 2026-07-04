@@ -12,6 +12,12 @@ export type Design = {
     height: number
   }
   rotation: number
+  printMode: PrintMode
+  baseDesignSize: {
+  width: number
+  height: number
+}
+scale: number
 }
 export type AiProvider = "comfy" | "flux-dev"
 export type Order = {

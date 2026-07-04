@@ -1,7 +1,7 @@
 import type { ShirtColor, PrintMode } from "../../../types/tshirt";
 import { shirtImages } from "../../../constants/shirtImages";
 import "./PreviewPanel.css";
-import { useRef } from "react";
+import { useState } from "react";
 type Props = {
     isDragging: boolean
     designSize: {width: number, height: number}
@@ -18,38 +18,32 @@ type Props = {
     rotation: number
     editingDesignId: number | null  
     previewRef: React.RefObject<HTMLDivElement | null>
-    scale: number
     setScale: React.Dispatch<React.SetStateAction<number>>
     printMode: PrintMode
-    setPrintMode: React.Dispatch<React.SetStateAction<PrintMode>>
+    onPrintModeChange: (mode: PrintMode) => void
+    baseDesignSize: {
+    width: number;
+    height: number;
+}
 }
 
-function ShirtPreview({printMode, setPrintMode, setScale, scale ,designSize, previewRef, rotation, position, isDragging,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
-  const finalWidth = designSize.width * scale
-const finalHeight = designSize.height * scale
+function ShirtPreview({baseDesignSize, onPrintModeChange, printMode, setScale ,designSize, previewRef, rotation, position, isDragging,setPosition,setIsDragging,shirtColor, generatedImage}: Props) {
+const [isResizing, setIsResizing] = useState(false)
+  const finalWidth = designSize.width
+const finalHeight = designSize.height
 
      
     return(
         <section>
-         <button
-  onClick={() => {
-    setPrintMode("front")
-    setScale(1)
-    setPosition({ x: 0, y: 0 })
+         <p
+  style={{
+    position: "absolute",
+    zIndex: 9999,
+    color: "red"
   }}
 >
-  Front Print
-</button>
-
-<button
-  onClick={() => {
-    setPrintMode("allOver")
-    setScale(1)
-    setPosition({ x: 0, y: 0 })
-  }}
->
-  All Over
-</button>
+  {finalWidth} x {finalHeight}
+</p>
          <div ref={previewRef} className="shirt-preview">
   <div className="shirt-canvas">
     <img
@@ -60,12 +54,50 @@ const finalHeight = designSize.height * scale
 
   <div
   className={printMode === "allOver" ? "full-shirt-area" : "front-print-area"}
->
-  <p style={{ position: "absolute", zIndex: 999, color: "red" }}>
-    {printMode}
-  </p>
+    onMouseMove={(event) => {
+      if (isResizing) {
+  const rect = event.currentTarget.getBoundingClientRect()
 
-  {generatedImage && (
+  const newScale =
+    (event.clientX - rect.left) / baseDesignSize.width
+
+  setScale(
+    Math.min(
+      1,
+      Math.max(0.3, newScale)
+    )
+  )
+
+  return
+}
+    if (!isDragging) return
+
+    const rect = event.currentTarget.getBoundingClientRect()
+
+    const newX = event.clientX - rect.left - finalWidth / 2
+    const newY = event.clientY - rect.top - finalHeight / 2
+
+    const minX = Math.min(0, rect.width - finalWidth)
+    const maxX = Math.max(0, rect.width - finalWidth)
+
+    const minY = Math.min(0, rect.height - finalHeight)
+    const maxY = Math.max(0, rect.height - finalHeight)
+
+    setPosition({
+      x: Math.min(Math.max(newX, minX), maxX),
+      y: Math.min(Math.max(newY, minY), maxY),
+    })
+  }}
+  onMouseUp={() => {setIsDragging(false) 
+                    setIsResizing(false)}}
+  onMouseLeave={() =>  {
+  setIsDragging(false)
+  setIsResizing(false)
+}}
+>
+
+
+  {generatedImage && ( <>
     <img
       className="design-image"
       src="/mockups/test-design.jpg"
@@ -77,11 +109,26 @@ const finalHeight = designSize.height * scale
         height: finalHeight,
         transform: `rotate(${rotation}deg)`
       }}
-      onMouseDown={() => setIsDragging(true)}
+      onMouseDown={() => {
+  setIsResizing(true)
+}}
       onDragStart={(event) => event.preventDefault()}
     />
-  )}
+    <div
+      className="resize-handle"
+      style={{
+  left: position.x + finalWidth - 20,
+  top: position.y + finalHeight - 20,
+}}
+ onMouseDown={(event) => {
+  event.stopPropagation()
+  setIsResizing(true)
+}}
+    />
+  </>
+  )}  
 </div>
+   <img className="shirt-overlay" src={shirtImages[shirtColor]} alt="" />
   </div>
 </div>
         </section>
