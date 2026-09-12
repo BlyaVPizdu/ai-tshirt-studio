@@ -30,11 +30,21 @@ export type Order = {
   status: "new" | "in_progress" | "done"
   totalPrice: number
 }
-export type CartItem = {
-  designId: number
-  quantity: number
-  size: "S" | "M" | "L" | "XL"
-}
+export type CartSize = "S" | "M" | "L" | "XL"
+
+export type CartItem =
+  | {
+      type: "product"
+      productId: number
+      size: CartSize
+      quantity: number
+    }
+  | {
+      type: "custom"
+      designId: number
+      size: CartSize
+      quantity: number
+    }
 export type CheckoutData = {
   customerName: string
   phone: string
@@ -42,3 +52,10 @@ export type CheckoutData = {
 }
 export type PlacementPreset = "center" | "left_chest" | "back"
 export type PrintMode = "front" | "allOver"
+export type Product = {
+  id: number
+  name: string
+  price: number
+  image: string
+  category: string
+}

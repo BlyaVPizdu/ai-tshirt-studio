@@ -1,0 +1,332 @@
+  import { useEffect, useState, useRef } from 'react'
+import type {
+  ShirtColor,
+  Design,
+  AiProvider,
+  CartItem,
+  PrintMode
+} from "../../types/tshirt"
+
+import {
+  uploadImage,
+  createDesign,
+  deleteDesignApi,
+  getDesigns,
+  updateDesign,
+  getAutoPlacementApi,
+  applyDesignCommandApi,
+} from "../../api/api"
+import ShirtSelector from "../../components/editor/PreviewPanel/ShirtSelector"
+import ShirtPreview from "../../components/editor/PreviewPanel/ShirtPreview"
+import PromptForm from "../../components/editor/PromptPanel/PromptPanel"
+import PropertiesPanel from "../../components/editor/PropertiesPanel/PropertiesPanel"
+
+import SavedDesigns from "../../components/SavedDesigns"
+import Cart from "../../components/Cart"
+import ChekoutForm from "../../components/CheckoutForm"
+import { toPng } from "html-to-image"
+import { useCart } from "../../context/CartContext"
+function CreatePage(){
+const [shirtColor, setShirtColor] = useState<ShirtColor>("white")
+    const [prompt, setPrompt] = useState("")
+    const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+    const [designSize, setDesignSize] = useState({width: 260,height: 260})
+    const [rotation, setRotation] = useState(0)
+    const [position, setPosition] = useState({x: 0, y: 0})
+    const [isDragging, setIsDragging] = useState(false)
+    const [savedDesigns, setSavedDesigns] = useState<Design[]>([])
+    const [editingDesignId, setEditingDesignId] = useState<number | null>(null)
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [selectedProvider, setSelectedProvider] = useState<AiProvider>("comfy")
+    const [placementCommand, setPlacementCommand] = useState("")
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+    const [baseDesignSize, setBaseDesignSize] = useState({ width: 260, height: 320 })
+    const [scale, setScale] = useState(1)
+    const {
+  cartItems,
+  addCustomDesign,
+  removeCart,
+  changeQuantity,
+} = useCart()
+    const finalDesignSize = {
+  width: baseDesignSize.width * scale,
+  height: baseDesignSize.height * scale,
+}
+    const [printMode, setPrintMode] = useState<PrintMode>("front")
+    useEffect(()=>{
+      const loadDesigns = async ()=>{
+          const data = await getDesigns()
+          setSavedDesigns(data)
+      }
+      loadDesigns()
+    }, [])
+    const handleGenerate = async () => {
+      try{
+        setError(null)
+          setIsGenerating(true)
+          if (!prompt.trim()) {
+           setError("Please enter a prompt")
+             return
+          }
+         const image =  "/mockups/test-design.jpg"/*await generateDesignImage(prompt, selectedProvider)*/
+        
+          setGeneratedImage(image)
+          const img = new Image()
+
+img.onload = () => {
+  const AREA_WIDTH = printMode === "front" ? 216 : 600
+  const AREA_HEIGHT = printMode === "front" ? 288 : 700
+
+  const ratio = img.width / img.height
+
+  let width = AREA_WIDTH
+  let height = width / ratio
+
+  // Для обоих режимов используем cover:
+  // вся область должна быть заполнена
+  if (height < AREA_HEIGHT) {
+    height = AREA_HEIGHT
+    width = height * ratio
+  }
+
+  setBaseDesignSize({ width, height })
+  setScale(1)
+
+  setPosition({
+    x: (AREA_WIDTH - width) / 2,
+    y: (AREA_HEIGHT - height) / 2,
+  })
+
+  setRotation(0)
+}
+
+img.src = image
+          setRotation(0)
+          /*const placement = await getAutoPlacementApi()
+          
+          setPosition(placement.position)
+          setSize(placement.size)
+          setRotation(placement.rotation)*/
+      }
+      catch(error){
+          setError(error instanceof Error ? error.message : "Could not generate image")
+      }
+      finally{
+           setIsGenerating(false)
+      }  
+    }
+    
+  const saveDesign = async () => {
+    if(!generatedImage){
+    return
+  }
+    if(editingDesignId !== null){
+      const existingDesign = savedDesigns.find(p => p.id === editingDesignId)
+      if(!existingDesign) return
+      const updatedDesign: Design = {
+        ...existingDesign,
+        prompt,
+         image: generatedImage,
+        shirtColor,
+        position, 
+        size: finalDesignSize,
+        baseDesignSize,
+        scale,
+        rotation,
+        printMode
+      }
+      const savedDesign = await updateDesign(editingDesignId, updatedDesign)
+      setSavedDesigns((p=>p.map(r=>r.id === editingDesignId ? savedDesign :r)))
+      setEditingDesignId(null)
+    }
+  else {
+    const design = {
+      prompt,
+      image: generatedImage,
+      shirtColor,
+      position, 
+      size: finalDesignSize,
+      baseDesignSize,
+      scale,
+      rotation,
+      printMode,
+    }
+    const savedDesign = await createDesign(design)
+    setSavedDesigns([...savedDesigns, savedDesign])
+  }
+    }
+    const deleteDesign = async (id: number) => {
+        await deleteDesignApi(id)
+        setSavedDesigns(prev => prev.filter((item)=> item.id !== id))
+  }
+    const editDesign = (id: number) => {
+        const editingDesign =savedDesigns.find(prev=> prev.id === id)
+        if(!editingDesign) return
+        setPrompt(editingDesign.prompt)
+        setGeneratedImage(editingDesign.image)
+        setShirtColor(editingDesign.shirtColor)
+        setPosition(editingDesign.position)
+        setDesignSize(editingDesign.size)
+        setRotation(editingDesign.rotation)
+        setEditingDesignId(id)
+        setPrintMode(editingDesign.printMode)
+        setScale(editingDesign.scale)
+        setBaseDesignSize(editingDesign.baseDesignSize)
+    }
+     const cancelEdit = () =>{
+        setEditingDesignId(null)
+        setPrompt("")
+        setGeneratedImage(null)
+        setPosition({ x: 130, y: 130 })
+        setDesignSize({ width: 140, height: 140 })
+        setRotation(0)
+        setPrintMode("front")
+        setBaseDesignSize({ width: 260, height: 320 })
+        setScale(1)
+        setPrintMode("front")
+    }
+    const handleUploadImage = async (file: File) => {
+  try {
+    setError(null)
+
+    const uploaded = await uploadImage(file)
+
+    setGeneratedImage(`http://localhost:3002${uploaded.imageUrl}`)
+    
+  } catch {
+    setError("Could not upload image")
+  }
+}   
+       
+        const handleApplyPlacementCommand = async () => {
+  const result = await applyDesignCommandApi({
+    command: placementCommand,
+    position,
+    size: designSize,
+    rotation
+  })
+
+  setPosition(result.position)
+  setDesignSize(result.size)
+  setRotation(result.rotation)
+}
+
+const previewRef = useRef<HTMLDivElement>(null)
+    
+      const exportPreview = async ()=>{
+          if (!previewRef.current) return
+        const dataUrl = await toPng(previewRef.current)
+        const link = document.createElement("a")
+        link.href = dataUrl
+        link.download = "t-shirt-design.png"
+        link.click()
+      }
+        
+    
+  const applyPrintMode = (mode: PrintMode) => {
+  setPrintMode(mode)
+  setScale(1)
+  setRotation(0)
+
+  if (mode === "front") {
+    setBaseDesignSize({ width: 216, height: 288 })
+    setPosition({ x: 0, y: 0 })
+  }
+
+  if (mode === "allOver") {
+    setBaseDesignSize({ width: 600, height: 700 })
+    setPosition({ x: 0, y: 0 })
+  }
+}
+
+    return (
+      <main className='app'>
+        <header className='app-header'>
+        {isCheckoutOpen && (
+        <ChekoutForm
+          onCancel={() => setIsCheckoutOpen(false)}
+          onPlaceOrder={(data) => {
+            console.log(data)
+           }}
+           />
+            )}
+            
+        <Cart
+          cartItems = {cartItems}
+          changeQuantity = {changeQuantity}
+          removeCart={removeCart}
+          savedDesigns = {savedDesigns}
+          onCheckout={() => setIsCheckoutOpen(true)}
+        />
+        </header>
+        
+        <section className="editor-layout">
+          
+        <PromptForm
+        onUploadImage = {handleUploadImage}
+        prompt = {prompt}
+        onPromptChange = {setPrompt}
+        onGenerate = {handleGenerate}
+        isGenerating = {isGenerating}
+        error = {error}
+        onProviderChange = {setSelectedProvider}
+        selectedProvider = {selectedProvider}
+        />
+        <section className='preview-panel'>
+       <ShirtSelector
+        shirtColor = {shirtColor}
+        setShirtColor = {setShirtColor}/>
+      <ShirtPreview
+      isDragging = {isDragging}
+      designSize = {finalDesignSize}
+      setPosition = {setPosition}
+      setIsDragging = {setIsDragging}
+      generatedImage = {generatedImage}
+      position = {position}
+      rotation = {rotation}
+      shirtColor={shirtColor}
+      editingDesignId= {editingDesignId}
+      previewRef = {previewRef}
+      setScale = {setScale}
+      printMode={printMode}
+      onPrintModeChange = {applyPrintMode}
+      baseDesignSize = {baseDesignSize}
+      />
+      
+      </section>
+      <PropertiesPanel
+  position = {position}
+  saveDesign={saveDesign}
+  setSize = {setDesignSize}
+  designSize = {designSize}
+  setPosition = {setPosition}
+  setRotation = {setRotation}
+  exportPreview = {exportPreview}
+  placementCommand= {placementCommand}
+  setPlacementCommand={setPlacementCommand}
+  onApplyPlacementCommand = {handleApplyPlacementCommand}
+  rotation={rotation}
+  editingDesignId={editingDesignId}
+  onCancelEdit={cancelEdit}
+  scale={scale}
+  setScale={setScale}
+  printMode={printMode}
+  onPrintModeChange={applyPrintMode}
+  />
+  
+
+  </section>
+  <section className="saved-designs-section">
+      <SavedDesigns
+      savedDesigns = {savedDesigns}
+      deleteDesign= {deleteDesign}
+      editDesign = {editDesign}
+      onAddCart = {addCustomDesign}
+      />
+      </section>   
+        </main>
+        
+    )
+}
+export default CreatePage

@@ -32,7 +32,18 @@ const [isResizing, setIsResizing] = useState(false)
   const finalWidth = designSize.width
 const finalHeight = designSize.height
 
-     
+     const FRONT_AREA_WIDTH = 216
+const FRONT_AREA_HEIGHT = 288
+
+const handleX = Math.min(
+  Math.max(position.x + finalWidth, 0),
+  FRONT_AREA_WIDTH
+)
+
+const handleY = Math.min(
+  Math.max(position.y + finalHeight, 0),
+  FRONT_AREA_HEIGHT
+)
     return(
         <section>
          <p
@@ -52,87 +63,110 @@ const finalHeight = designSize.height
       alt="T-shirt"
     />
 
-  <div
-  className={printMode === "allOver" ? "full-shirt-area" : "front-print-area"}
-    onMouseMove={(event) => {
-      if (isResizing) {
-  const rect = event.currentTarget.getBoundingClientRect()
-
-  const newScale =
-    (event.clientX - rect.left) / baseDesignSize.width
-
-  setScale(
-    Math.min(
-      1,
-      Math.max(0.3, newScale)
-    )
-  )
-
-  return
-}
-    if (!isDragging) return
-
+ <div
+  className={
+    printMode === "allOver"
+      ? "full-shirt-area"
+      : "front-print-area"
+  }
+  onMouseMove={(event) => {
     const rect = event.currentTarget.getBoundingClientRect()
 
-    const newX = event.clientX - rect.left - finalWidth / 2
-    const newY = event.clientY - rect.top - finalHeight / 2
+    if (isResizing) {
+      const mouseX = event.clientX - rect.left
+      const mouseY = event.clientY - rect.top
 
-    const minX = Math.min(0, rect.width - finalWidth)
-    const maxX = Math.max(0, rect.width - finalWidth)
+      const newWidth = mouseX - position.x
+      const newHeight = mouseY - position.y
 
-    const minY = Math.min(0, rect.height - finalHeight)
-    const maxY = Math.max(0, rect.height - finalHeight)
+      const scaleByWidth =
+        newWidth / baseDesignSize.width
 
-    setPosition({
-      x: Math.min(Math.max(newX, minX), maxX),
-      y: Math.min(Math.max(newY, minY), maxY),
-    })
+      const scaleByHeight =
+        newHeight / baseDesignSize.height
+
+      const newScale = Math.min(
+        scaleByWidth,
+        scaleByHeight
+      )
+
+      setScale(
+        Math.min(1, Math.max(0.3, newScale))
+      )
+      
+      return
+    }
+
+    if (!isDragging) return
+
+    const newX =
+  event.clientX - rect.left - finalWidth / 2
+
+const newY =
+  event.clientY - rect.top - finalHeight / 2
+
+const minX = Math.min(0, rect.width - finalWidth)
+const maxX = Math.max(0, rect.width - finalWidth)
+
+const minY = Math.min(0, rect.height - finalHeight)
+const maxY = Math.max(0, rect.height - finalHeight)
+
+setPosition({
+  x: Math.min(Math.max(newX, minX), maxX),
+  y: Math.min(Math.max(newY, minY), maxY),
+})
   }}
-  onMouseUp={() => {setIsDragging(false) 
-                    setIsResizing(false)}}
-  onMouseLeave={() =>  {
-  setIsDragging(false)
-  setIsResizing(false)
-}}
+  onMouseUp={() => {
+    setIsDragging(false)
+    setIsResizing(false)
+  }}
+  onMouseLeave={() => {
+    setIsDragging(false)
+    setIsResizing(false)
+  }}
 >
+  <div className="print-clip">
+    {generatedImage && (
+      <img
+        className="design-image"
+        src="/mockups/test-design.jpg"
+        alt="Generated design"
+        style={{
+          left: position.x,
+          top: position.y,
+          width: finalWidth,
+          height: finalHeight,
+          transform: `rotate(${rotation}deg)`,
+        }}
+        onMouseDown={() => setIsDragging(true)}
+        onDragStart={(event) =>
+          event.preventDefault()
+        }
+      />
+    )}
+  </div>
 
-
-  {generatedImage && ( <>
-    <img
-      className="design-image"
-      src="/mockups/test-design.jpg"
-      alt="Generated design"
-      style={{
-        left: position.x,
-        top: position.y,
-        width: finalWidth,
-        height: finalHeight,
-        transform: `rotate(${rotation}deg)`
-      }}
-      onMouseDown={() => {
-  setIsResizing(true)
-}}
-      onDragStart={(event) => event.preventDefault()}
-    />
+  {generatedImage && printMode === "front" && (
     <div
       className="resize-handle"
       style={{
-  left: position.x + finalWidth - 20,
-  top: position.y + finalHeight - 20,
+  left: handleX,
+  top: handleY,
 }}
- onMouseDown={(event) => {
-  event.stopPropagation()
-  setIsResizing(true)
-}}
+      onMouseDown={(event) => {
+        event.stopPropagation()
+        setIsDragging(false)
+        setIsResizing(true)
+      }}
     />
-  </>
-  )}  
+  )}
 </div>
    <img className="shirt-overlay" src={shirtImages[shirtColor]} alt="" />
   </div>
 </div>
         </section>
     )
-}export default ShirtPreview
+}
+export default ShirtPreview
 
 

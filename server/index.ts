@@ -90,6 +90,7 @@ app.post("/auto-placement", (req, res) => {
 })
 app.use("/uploads", express.static("uploads"))
 
+
 const storage = multer.diskStorage({
   destination: "uploads",
   filename: (req, file, cb) => {
@@ -101,14 +102,15 @@ const upload = multer({ storage })
 
 app.post("/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" })
+    return res.status(400).json({
+      error: "No file uploaded",
+    })
   }
 
-  res.json({
-    imageUrl: `/uploads/${req.file.filename}`,
+  res.status(201).json({
+    imageUrl: `http://localhost:${PORT}/uploads/${req.file.filename}`,
   })
 })
-
 
 app.get("/health" , (req, res)=>{
     res.json({"server": "OK"})
