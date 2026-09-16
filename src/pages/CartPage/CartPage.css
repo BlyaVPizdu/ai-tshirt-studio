@@ -1,0 +1,22 @@
+.cart-page {
+  min-height: 100vh;
+  background: #fff;
+  color: #111;
+}
+
+.cart-page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 48px;
+}
+
+.cart-page-content h1 {
+  margin: 0 0 40px;
+  font-size: 48px;
+}
+
+@media (max-width: 700px) {
+  .cart-page-content {
+    padding: 40px 20px;
+  }
+}

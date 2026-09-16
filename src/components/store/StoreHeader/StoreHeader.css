@@ -1,0 +1,46 @@
+.store-header {
+  height: 72px;
+  padding: 0 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e8e8e8;
+  background: #fff;
+}
+
+.store-logo {
+  color: #111;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.store-nav {
+  display: flex;
+  gap: 32px;
+}
+
+.store-nav a {
+  color: #111;
+  text-decoration: none;
+}
+
+.store-cart-button {
+  border: none;
+  background: none;
+  color: #111;
+  cursor: pointer;
+  font: inherit;
+}
+
+@media (max-width: 700px) {
+  .store-header {
+    padding: 0 20px;
+  }
+
+  .store-nav {
+    gap: 16px;
+  }
+}

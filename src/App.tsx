@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom"
 import HomePage from "./pages/HomePage/HomePage"
 import CreatePage from "./pages/CreatPage/CreatePage"
 import ProductPage from "./pages/ProductPage/ProductPage"
+import CartPage from "./pages/CartPage/CartPage"
 
 function App() {
   return (
@@ -12,6 +13,10 @@ function App() {
         element={<ProductPage />}
       />
       <Route path="/create" element={<CreatePage />} />
+       <Route
+    path="/cart"
+    element={<CartPage />}
+  />
     </Routes>
   )
 }

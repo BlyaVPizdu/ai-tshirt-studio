@@ -3,12 +3,13 @@ import { Link, useParams } from "react-router-dom"
 import { products } from "../../data/products"
 import "./ProductPage.css"
 import { useCart } from "../../context/CartContext"
-import { CartSize } from "../../types/tshirt"
+import type { CartSize } from "../../types/tshirt"
+import StoreHeader from "../../components/store/StoreHeader/StoreHeader"
 
 type Size = "S" | "M" | "L" | "XL"
 
 function ProductPage() {
-    const { addProduct, cartItems } = useCart()
+    const { addProduct} = useCart()
   const { id } = useParams()
 
   const [selectedSize, setSelectedSize] = useState<CartSize>("M")
@@ -35,20 +36,7 @@ function ProductPage() {
 
   return (
     <main className="product-page">
-      <header className="product-header">
-        <Link to="/" className="logo">
-          AI SHIRT
-        </Link>
-
-        <nav>
-          <Link to="/">Shop</Link>
-          <Link to="/create">Create</Link>
-        </nav>
-
-        <button>
-          Cart ({cartCount})
-        </button>
-      </header>
+      <StoreHeader />
 
       <section className="product-layout">
         <div className="product-page-image">

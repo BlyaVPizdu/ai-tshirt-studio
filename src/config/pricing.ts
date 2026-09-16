@@ -1,0 +1,1 @@
+export const CUSTOM_TSHIRT_PRICE = 14990

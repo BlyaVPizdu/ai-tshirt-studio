@@ -2,24 +2,11 @@ import { Link } from "react-router-dom"
 import ProductCard from "../../components/store/ProductCard/ProductCard"
 import { products } from "../../data/products"
 import "./HomePage.css"
-
+import StoreHeader from "../../components/store/StoreHeader/StoreHeader"
 function HomePage() {
   return (
     <main className="store">
-      <header className="store-header">
-        <Link to="/" className="logo">
-          AI SHIRT
-        </Link>
-
-        <nav>
-          <Link to="/">Shop</Link>
-          <Link to="/create">Create</Link>
-        </nav>
-
-        <button className="cart-button">
-          Cart (0)
-        </button>
-      </header>
+     <StoreHeader />
 
       <section className="hero">
         <p className="hero-label">CREATE. WEAR. REPEAT.</p>

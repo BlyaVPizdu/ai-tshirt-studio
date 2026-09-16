@@ -1,7 +1,10 @@
-import type { CartItem, Design, CartSize } from "../types/tshirt"
+import type { CartItem, CartSize, Design } from "../types/tshirt"
 import { products } from "../data/products"
+import { CUSTOM_TSHIRT_PRICE } from "../config/pricing"
 type Props ={
     cartItems: CartItem[]
+    designs: Design[]
+
     changeQuantity: (
     type: CartItem["type"],
     id: number,
@@ -14,10 +17,8 @@ type Props ={
     id: number,
     size: CartSize
   ) => void
-    savedDesigns: Design[]
-    onCheckout: () => void  
 }
-function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
+function Cart({ cartItems, designs, removeCart, changeQuantity}:Props){
   if (cartItems.length === 0) {
     return <p>Cart is empty</p>
   }
@@ -31,6 +32,13 @@ function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
     item.type === "product"
       ? item.productId
       : item.designId
+        
+  const design =
+  item.type === "custom"
+    ? designs.find(
+        design => design.id === item.designId
+      )
+    : null
 
   const product =
     item.type === "product"
@@ -40,13 +48,7 @@ function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
         )
       : null
 
-  const design =
-    item.type === "custom"
-      ? savedDesigns.find(
-          design =>
-            design.id === item.designId
-        )
-      : null
+ 
 
   const name =
     item.type === "product"
@@ -61,8 +63,27 @@ function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
   const price =
     item.type === "product"
       ? product?.price
-      : 14990
+      : CUSTOM_TSHIRT_PRICE
+  
+  const totalPrice = cartItems.reduce((total, item) => {
+  if (item.type === "product") {
+    const product = products.find(
+      product => product.id === item.productId
+    )
 
+    if (!product) {
+      return total
+    }
+
+    return total + product.price * item.quantity
+  }
+
+  return total + CUSTOM_TSHIRT_PRICE * item.quantity
+}, 0)
+const totalItems = cartItems.reduce(
+  (total, item) => total + item.quantity,
+  0
+)
   return (
     <div
       key={`${item.type}-${id}-${item.size}`}
@@ -116,6 +137,13 @@ function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
             +
           </button>
         </div>
+        <div className="cart-total">
+  <span>Total</span>
+
+  <strong>
+    {totalPrice.toLocaleString()} ₸
+  </strong>
+</div>
 
         <button
           onClick={() =>
@@ -132,6 +160,7 @@ function Cart({onCheckout, cartItems, removeCart, changeQuantity}:Props){
     </div>
   )
 })}
+
 
       <button onClick={onCheckout}>
         Checkout
