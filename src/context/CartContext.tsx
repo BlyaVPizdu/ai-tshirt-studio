@@ -81,7 +81,8 @@ export function CartProvider({ children }: Props) {
 
     return [...prev, newItem]
   })
-}const addCustomDesign = (
+}
+const addCustomDesign = (
   designId: number,
   size: CartSize = "M"
 ) => {

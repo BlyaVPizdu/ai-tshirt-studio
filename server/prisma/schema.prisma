@@ -21,5 +21,8 @@ model Design {
   width      Float
   height     Float
   rotation   Float
+  printMode        String
+  baseDesignWidth  Float
+  baseDesignHeight Float
   createdAt  DateTime @default(now())
 }

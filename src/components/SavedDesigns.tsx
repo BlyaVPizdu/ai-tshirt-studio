@@ -27,13 +27,16 @@ function SavedDesigns({ onAddCart, editDesign,savedDesigns, deleteDesign}: Props
                 
                 left: item.position.x * scale,
                 top: item.position.y * scale,
-                width: item.size * scale,
+                width: item.size.width * scale,
+                height: item.size.height * scale,
                 transform: `rotate(${item.rotation}deg)`
               }}/>
           </div>  
         <p>Prompt: {item.prompt}</p>
         <p>Shirt: {item.shirtColor}</p>
-        <p>Size: {item.size}</p>
+        <p>
+  Size: {item.size.width} × {item.size.height}
+</p>
         <p>Rotation: {item.rotation}</p>
         <button onClick={()=> deleteDesign(item.id)}>Delete</button>
         <button onClick={()=> editDesign(item.id)}>Edit</button>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Design } from "../../types/tshirt"
+import type { Design } from "../../types/tshirt"
 
 import { getDesigns } from "../../api/api"
 import { useCart } from "../../context/CartContext"

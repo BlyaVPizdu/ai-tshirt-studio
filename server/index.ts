@@ -5,12 +5,12 @@ import multer from "multer"
 import { generateImage as generateComfyImage } from "./providers/comfyProvider"
 import { getAutoPlacement, applyPlacementCommand } from './providers/placementProvider';
 import { generateImage as  generateFluxDevImage } from './providers/fluxdev';
+import { prisma } from "./prisma"
 
 const app = express()
 const PORT = 3002
 app.use(cors())
 app.use(express.json())
-const designs: Design[] = []
 const orders: Order[] = []
 
 /*
@@ -18,22 +18,110 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 */
+function toDesignResponse(design: {
+  id: number
+  prompt: string
+  image: string
+  shirtColor: string
+  positionX: number
+  positionY: number
+  width: number
+  height: number
+  rotation: number
+   printMode: string
+  baseDesignWidth: number
+  baseDesignHeight: number
+}) {
+  return {
+    id: design.id,
+    prompt: design.prompt,
+    image: design.image,
+    shirtColor: design.shirtColor,
 
-app.get("/designs", (req, res) => {
-  res.json(designs)
+    position: {
+      x: design.positionX,
+      y: design.positionY,
+    },
+
+    size: {
+      width: design.width,
+      height: design.height,
+    },
+
+    rotation: design.rotation,
+    printMode: design.printMode,
+
+    baseDesignSize: {
+      width: design.baseDesignWidth,
+      height: design.baseDesignHeight,
+    },
+  }
+}
+app.get("/designs", async (req, res) => {
+  try {
+    const designs = await prisma.design.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+
+    const response = designs.map(toDesignResponse)
+
+    res.json(response)
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      error: "Failed to load designs",
+    })
+  }
 })
 app.get("/orders", (req, res)=>{
     res.json(orders)
 })
-app.post("/designs", (req, res) => {
-  const design = {
-    id: Date.now(),
-    ...req.body,
+app.post("/designs", async (req, res) => {
+  try {
+    const {
+      prompt,
+      image,
+      shirtColor,
+      position,
+      size,
+      rotation,
+      printMode,
+      baseDesignSize,
+    } = req.body
+
+    const design = await prisma.design.create({
+      data: {
+        prompt,
+        image,
+        shirtColor,
+
+        positionX: position.x,
+        positionY: position.y,
+
+        width: size.width,
+        height: size.height,
+
+        rotation,
+        printMode,
+
+        baseDesignWidth: baseDesignSize.width,
+        baseDesignHeight: baseDesignSize.height,
+      },
+    })
+
+    res
+  .status(201)
+  .json(toDesignResponse(design))
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      error: "Failed to create design",
+    })
   }
-
-  designs.push(design)
-
-  res.status(201).json(design)
 })
 app.post("/orders", (req, res) => {
   const order = {
